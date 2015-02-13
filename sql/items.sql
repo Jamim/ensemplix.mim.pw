@@ -1,0 +1,5 @@
+CREATE TABLE items (
+	id		SERIAL UNIQUE NOT NULL PRIMARY KEY,
+	title		TEXT NOT NULL,
+	icon_image	TEXT
+);
