@@ -13,3 +13,9 @@ CREATE TABLE shops_history (
 	z		INTEGER		NOT NULL,
 	data		INTEGER		NOT NULL
 );
+
+CREATE INDEX shops_history_server_id_idx ON shops_history (server_id);
+CREATE INDEX shops_history_item_id_idx   ON shops_history (item_id);
+CREATE INDEX shops_history_operation_idx ON shops_history (operation);
+CREATE INDEX shops_history_from_id_idx   ON shops_history (from_id);
+CREATE INDEX shops_history_to_id_idx     ON shops_history (to_id);
