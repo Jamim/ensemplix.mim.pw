@@ -1,7 +1,9 @@
 SELECT
-	shops_history.id, shops_history.created,
-	players_from.player AS from, players_to.player AS to, items.title,
-	amount, price, operation
+	shops_history.id,
+	players_from.player AS client, operation, players_to.player AS owner,
+	items.icon_image, item_id, items.title, amount, price,
+	x, y, z,
+	shops_history.created
 FROM shops_history
 	JOIN players AS players_from ON players_from.id = from_id
 	JOIN players AS players_to   ON players_to.id = to_id

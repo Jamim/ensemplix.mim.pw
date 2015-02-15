@@ -1,15 +1,22 @@
 ## -*- coding: utf-8 -*-
 <%! from time import time, localtime, strftime %>\
+<%! from termination import get_termination %>\
 <%def name="make_history_row(row)">\
 				<tr>
-					<td>${row[0]}</td>
-					<td>${strftime('%Y.%m.%d %H:%M:%S', localtime(row[1]))}</td>
-					<td>${row[2]}</td>
-					<td>${row[3]}</td>
-					<td>${row[4]}</td>
-					<td>${row[5]}</td>
-					<td>${row[6]}</td>
-					<td>${row[7] and 'продажа' or 'покупка'}</td>
+					<td>
+						<a class="label label-success" href="http://webapi.ensemplix.ru/#${row[1]}">${row[1]}</a>
+						${row[2] and 'продал' or 'купил у'}
+						<a class="label label-info" href="http://webapi.ensemplix.ru/#${row[3]}">${row[3]}</a>
+					</td>
+					<td>
+						<img src="${row[4]}" alt="${row[6]}"/>
+					</td>
+					<td>
+						<b>#${row[5]}</b> ${row[6]}<br />
+						${row[7]} шт. за <b>${row[8]} койн${get_termination(row[8], ('', 'а', 'ов'))}</b>
+					</td>
+					<td>${row[9]},${row[10]},${row[11]}</td>
+					<td>${strftime('%Y.%m.%d %H:%M:%S', localtime(row[12]))}</td>
 				</tr>
 </%def>\
 <!DOCTYPE html>
@@ -26,14 +33,10 @@
 		<table class="table table-striped">
 			<thead>
 				<tr>
-					<th>#</th>
+					<th>Операция</th>
+					<th colspan="2">Предмет</th>
+					<th>Координаты</th>
 					<th>Время</th>
-					<th>Клиент</th>
-					<th>Владелец</th>
-					<th>Предмет</th>
-					<th>Количество</th>
-					<th>Цена</th>
-					<th>Тип&nbsp;операции</th>
 				</tr>
 			</thead>
 			<tbody>
