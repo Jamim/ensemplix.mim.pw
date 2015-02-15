@@ -3,19 +3,23 @@
 <%def name="make_history_row(row)">\
 				<tr>
 					<td>
-						<a class="label label-success" href="http://webapi.ensemplix.ru/#${row[1]}">${row[1]}</a>
-						${row[2] and 'продал' or 'купил у'}
-						<a class="label label-info" href="http://webapi.ensemplix.ru/#${row[3]}">${row[3]}</a>
+						<span class="label label-warning">${row[0]['warp'][3]}</span><br />
+						<span class="small text-muted">${'%.1f' % (row[0]['distance'],)} метра</span>
 					</td>
 					<td>
-						<img src="${row[4]}" alt="${row[6]}"/>
+						<a class="label label-success" href="http://webapi.ensemplix.ru/#${row[2]}">${row[2]}</a>
+						${row[3] and 'продал' or 'купил у'}
+						<a class="label label-info" href="http://webapi.ensemplix.ru/#${row[4]}">${row[4]}</a>
 					</td>
 					<td>
-						<b>#${row[5]}</b> ${row[6]}<br />
-						${row[7]} шт. за <b>${row[8]} койн${get_termination(row[8], ('', 'а', 'ов'))}</b>
+						<img src="${row[5]}" alt="${row[7]}"/>
 					</td>
-					<td>${row[9]},${row[10]},${row[11]}</td>
-					<td>${strftime('%Y.%m.%d %H:%M:%S', localtime(row[12]))}</td>
+					<td>
+						<b>#${row[6]}</b> ${row[7]}<br />
+						${row[8]} шт. за <b>${row[9]} койн${get_termination(row[9], ('', 'а', 'ов'))}</b>
+					</td>
+					<td>${row[10]},${row[11]},${row[12]}</td>
+					<td>${strftime('%Y.%m.%d %H:%M:%S', localtime(row[13]))}</td>
 				</tr>
 </%def>\
 <!DOCTYPE html>
@@ -32,6 +36,7 @@
 		<table class="table table-striped">
 			<thead>
 				<tr>
+					<th>Варп</th>
 					<th>Операция</th>
 					<th colspan="2">Предмет</th>
 					<th>Координаты</th>
