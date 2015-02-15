@@ -9,7 +9,7 @@
 				<td>${row[4]}</td>
 				<td>${row[5]}</td>
 				<td>${row[6]}</td>
-				<td>${row[7]}</td>
+				<td>${row[7] and 'продажа' or 'покупка'}</td>
 			</tr>
 </%def>\
 <!DOCTYPE html>
