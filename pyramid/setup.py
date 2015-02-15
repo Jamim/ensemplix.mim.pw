@@ -12,7 +12,7 @@ requires = [
 
 description='Статистика и вспомогательная информация Ensemplix'
 setup(name='ensemplix',
-      version='0.0.1a',
+      version='0.0.1',
       description=description,
       long_description=description,
       classifiers=[

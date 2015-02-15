@@ -1,6 +1,5 @@
 ## -*- coding: utf-8 -*-
 <%! from time import time, localtime, strftime %>\
-<%! from termination import get_termination %>\
 <%def name="make_history_row(row)">\
 				<tr>
 					<td>
