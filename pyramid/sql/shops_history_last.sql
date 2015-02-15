@@ -1,5 +1,5 @@
 SELECT
-	shops_history.id, to_timestamp(shops_history.created) AS created,
+	shops_history.id, shops_history.created,
 	players_from.player AS from, players_to.player AS to, items.title,
 	amount, price, operation
 FROM shops_history

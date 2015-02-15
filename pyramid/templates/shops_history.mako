@@ -1,9 +1,9 @@
 ## -*- coding: utf-8 -*-
-<%! from time import time %>\
+<%! from time import time, localtime, strftime %>\
 <%def name="make_history_row(row)">\
 			<tr>
 				<td>${row[0]}</td>
-				<td>${row[1]}</td>
+				<td>${strftime('%Y.%m.%d %H:%M:%S', localtime(row[1]))}</td>
 				<td>${row[2]}</td>
 				<td>${row[3]}</td>
 				<td>${row[4]}</td>
