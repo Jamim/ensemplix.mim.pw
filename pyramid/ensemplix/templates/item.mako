@@ -36,7 +36,7 @@ ${make_stats_row(row)}\
 						<tr>
 							<td>${row[0] and 'Продажа в магазины' or 'Покупка из магазинов'}</td>
 							<td>${row[1]}</td>
-							<td>${row[2]}</td>
+							<td>${row[2]} <span class="small text-muted">/ 64 =</span> ${'{0:.2f}'.format(row[2]/64).rstrip('0').rstrip('.')}</td>
 							<td>${row[3]} койн${get_termination(row[3], ('', 'а', 'ов'))}</td>
 							${make_price_td(row[4])}\
 							${make_price_td(row[5])}\
