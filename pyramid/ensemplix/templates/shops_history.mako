@@ -28,7 +28,7 @@
 <html lang="ru">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
+		<link rel="stylesheet" href="/css/mim.bootstrap.min.css" />
 		<title>История магазинов Ensemplix</title>
 	</head>
 	<body role="document">
