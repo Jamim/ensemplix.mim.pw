@@ -85,6 +85,30 @@ def shops_history_last(request):
 
 	return response
 
+day  = 3600 * 24
+week = day * 7
+
+def item_view(request):
+	start_time = time()
+	sql = load_sql('item_stats.sql')
+
+	item_id = int(request.matchdict['item_id'])
+
+	cursor = sql_connection.cursor()
+	cursor.execute("SELECT * FROM items WHERE id = %s", (item_id,))
+	item_info = cursor.fetchone()
+	cursor.execute(sql, (item_id, start_time - day))
+	daily_stats = cursor.fetchall()
+	cursor.execute(sql, (item_id, start_time - week))
+	weekly_stats = cursor.fetchall()
+	cursor.close()
+
+	template = Template(filename=app_dir + 'templates/item.mako')
+	result = template.render(start_time=start_time, item_info=item_info, daily_stats=daily_stats, weekly_stats=weekly_stats, get_termination=get_termination)
+	response = Response(result)
+
+	return response
+
 def main(global_config, **settings):
 	global app_dir, sql_connection
 	app_dir = settings['buildout_dir']
@@ -96,7 +120,11 @@ def main(global_config, **settings):
 
 
 	config = Configurator(settings=settings)
+
 	config.add_route('shops_history_last', '/shops/history/last')
 	config.add_view(shops_history_last, route_name='shops_history_last')
+
+	config.add_route('item', '/item/{item_id}')
+	config.add_view(item_view, route_name='item')
 
 	return config.make_wsgi_app()
