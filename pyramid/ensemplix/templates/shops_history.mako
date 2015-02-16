@@ -17,7 +17,7 @@
 							</a>
 						</td>
 						<td>
-							<a class="no-underline" href="/item/${row[6]}"><b>#${row[6]}</b> ${row[7].capitalize().replace('_', ' ')}</a><br />
+							<a class="label label-primary" href="/item/${row[6]}">#${row[6]} ${row[7].capitalize().replace('_', ' ')}</a><br />
 							${row[8]} шт. за <b>${row[9]} койн${get_termination(row[9], ('', 'а', 'ов'))}</b>
 						</td>
 						<td>${row[10]},${row[11]},${row[12]}</td>
@@ -29,9 +29,6 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
-		<style>
-			a.no-underline {text-decoration: none;}
-		</style>
 		<title>История магазинов Ensemplix</title>
 	</head>
 	<body role="document">
