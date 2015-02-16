@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-<%! from time import time, localtime, strftime %>\
+<%! from time import time %>\
 <%def name="make_stats_table(stats, period, panel)">\
 			<div class="panel panel-${panel}">
 				<div class="panel-heading">
@@ -55,8 +55,12 @@ ${make_stats_row(row)}\
 			<div class="page-header">
 				<h2><img src="${item_info[2]}" alt="${item_info[1]}" /> #${item_info[0]} ${item_info[1].capitalize().replace('_', ' ')}</h2>
 			</div>
+% if daily_stats:
 ${make_stats_table(daily_stats, 'день', 'success')}\
+% endif
+% if weekly_stats:
 ${make_stats_table(weekly_stats, 'неделю', 'info')}\
+% endif
 			<p id="generation_time" class="small">Время генерации: ${'%.2f' % ((time()-start_time) * 1000,)} мс</p>
 		</div>
 	</body>

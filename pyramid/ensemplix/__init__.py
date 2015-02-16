@@ -95,7 +95,7 @@ def item_view(request):
 	item_id = int(request.matchdict['item_id'])
 
 	cursor = sql_connection.cursor()
-	cursor.execute("SELECT * FROM items WHERE id = %s", (item_id,))
+	cursor.execute("SELECT * FROM items WHERE id = %s;", (item_id,))
 	item_info = cursor.fetchone()
 	cursor.execute(sql, (item_id, start_time - day))
 	daily_stats = cursor.fetchall()
@@ -105,6 +105,21 @@ def item_view(request):
 
 	template = Template(filename=app_dir + 'templates/item.mako')
 	result = template.render(start_time=start_time, item_info=item_info, daily_stats=daily_stats, weekly_stats=weekly_stats, get_termination=get_termination)
+	response = Response(result)
+
+	return response
+
+def items_view(request):
+	start_time = time()
+	week_ago = start_time - week
+	sql = load_sql('items_stats.sql')
+
+	cursor = sql_connection.cursor()
+	cursor.execute(sql, (week_ago, week_ago));
+	items = cursor.fetchall()
+
+	template = Template(filename=app_dir + 'templates/items.mako')
+	result = template.render(start_time=start_time, items=items)
 	response = Response(result)
 
 	return response
@@ -126,5 +141,8 @@ def main(global_config, **settings):
 
 	config.add_route('item', '/item/{item_id}')
 	config.add_view(item_view, route_name='item')
+
+	config.add_route('items', '/items')
+	config.add_view(items_view, route_name='items')
 
 	return config.make_wsgi_app()
