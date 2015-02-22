@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-<%! from time import time %>\
+<%! from time import time, localtime, strftime %>\
 <%def name="make_shops_table(shops, action, panel)">\
 					<div class="panel panel-${panel}">
 						<div class="panel-heading">
@@ -33,8 +33,11 @@
 								<a class="label label-info" href="http://webapi.ensemplix.ru/#${shop[1]}">${shop[1]}</a>
 							</td>
 							${make_price_td(shop[2])}\
-							<td>${shop[3]} шт. за <b>${shop[4]}&nbsp;койн${get_termination(shop[4], ('', 'а', 'ов'))}</b></td>
-							<td>${shop[5]},${shop[6]},${shop[7]}</td>
+							<td>
+								${shop[3]} шт. за <b>${shop[4]}&nbsp;койн${get_termination(shop[4], ('', 'а', 'ов'))}</b><br />
+								<span class="small text-muted">${strftime('%Y.%m.%d %H:%M:%S', localtime(shop[5]))}</span>
+							</td>
+							<td>${shop[6]},${shop[7]},${shop[8]}</td>
 						</tr>
 </%def>\
 <%def name="make_stats_table(stats, period, panel)">\

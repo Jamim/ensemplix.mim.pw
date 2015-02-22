@@ -90,11 +90,11 @@ week = day * 7
 
 def item_view(request):
 	start_time = time()
-	where_sql = load_sql('item_where.sql')
+	shops_sql = load_sql('item_shops.sql')
 	stats_sql = load_sql('item_stats.sql')
 
-	where_to_buy_sql  = where_sql.replace('[NOT]', 'NOT ').replace('[DESC]', '')
-	where_to_sell_sql = where_sql.replace('[NOT]', '')    .replace('[DESC]', ' DESC')
+	where_to_buy_sql  = shops_sql.replace('[NOT]', 'NOT ').replace('[DESC]', '')
+	where_to_sell_sql = shops_sql.replace('[NOT]', '')    .replace('[DESC]', ' DESC')
 
 	item_id = int(request.matchdict['item_id'])
 	week_ago = start_time - week
