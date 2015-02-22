@@ -91,45 +91,48 @@ ${'{0:.6f}'.format(price).rstrip('0').rstrip('.')}<br /><span class="small text-
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<link rel="stylesheet" href="/css/mim.bootstrap.min.css" />
-		<title>#${item_info[0]} ${item_info[1].capitalize().replace('_', ' ')} &bull; Сведения о предмете Ensemplix</title>
+		<title>#${item_info[0]} ${item_info[1].capitalize().replace('_', ' ')} &bull;${len(item_stats) == 1 and ' %s &bull;' % (tuple(item_stats.keys())[0],) or ''} Сведения о предмете Ensemplix</title>
 	</head>
 	<body role="document">
 		<div class="container theme-showcase" role="main">
 			<div class="page-header">
 				<h2><img src="${item_info[2]}" alt="${item_info[1]}" /> #${item_info[0]} ${item_info[1].capitalize().replace('_', ' ')}</h2>
 			</div>
-% if where_to_buy or where_to_sell:
+% for server in (len(item_stats) == 3 and ('Davids', 'Sandbox', 'Amber') or item_stats):
+<% stats = item_stats[server] %>\
+% if stats.where_to_buy or item_stats[server].where_to_sell:
 			<div class="page-header">
-				<h3>Магазины</h3>
+				<h3>Магазины ${server}</h3>
 			</div>
 			<div class="row">
 				<div class="col-sm-6">
-% if where_to_buy:
-${make_shops_table(where_to_buy, 'купить', 'Продавец', 'warning')}\
+% if stats.where_to_buy:
+${make_shops_table(stats.where_to_buy, 'купить', 'Продавец', 'warning')}\
 % endif
 				</div>
 				<div class="col-sm-6">
-% if where_to_sell:
-${make_shops_table(where_to_sell, 'продать', 'Покупатель', 'danger')}\
+% if stats.where_to_sell:
+${make_shops_table(stats.where_to_sell, 'продать', 'Покупатель', 'danger')}\
 % endif
 				</div>
 			</div>
 % endif
-% if weekly_stats:
+% if stats.weekly:
 			<div class="page-header">
-				<h3>Статистика</h3>
+				<h3>Статистика ${server}</h3>
 			</div>
 			<div class="row">
 				<div class="col-sm-6">
-% if daily_stats:
-${make_stats_table(daily_stats, 'день', 'success')}\
+% if stats.daily:
+${make_stats_table(stats.daily, 'день', 'success')}\
 % endif
 				</div>
 				<div class="col-sm-6">
-${make_stats_table(weekly_stats, 'неделю', 'info')}\
+${make_stats_table(stats.weekly, 'неделю', 'info')}\
 				</div>
 			</div>
 % endif
+% endfor
 			<p id="generation_time" class="small">Время генерации: ${'%.2f' % ((time()-start_time) * 1000,)} мс</p>
 		</div>
 	</body>

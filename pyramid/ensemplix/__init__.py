@@ -24,36 +24,38 @@ def get_distance(coords0, coords1):
 
 warps_expire_delay = 1800 # полчаса
 warps_expire_time = 0
-nearest_warps = {}
 
 def update_warps():
-	global warps
+	global warps, nearest_warps
 
 	cursor = sql_connection.cursor()
-	cursor.execute('SELECT x, y, z, warp FROM warps WHERE server_id = 3;')
-	warps = cursor.fetchall()
+	warps, nearest_warps = {}, {}
+	for server_id in servers_ids:
+		cursor.execute('SELECT x, y, z, warp FROM warps WHERE server_id = %s;', (server_id,))
+		warps[server_id] = cursor.fetchall()
+		nearest_warps[server_id] = {}
 	cursor.close()
 
-	nearest_warps.clear()
 	warps_expire_time = time() + warps_expire_delay
 
-def get_warp(coords):
+def get_warp(server_id, coords):
 	if warps_expire_time < time():
 		update_warps()
 
-	if coords in nearest_warps:
-		return nearest_warps[coords]
+	if coords in nearest_warps[server_id]:
+		return nearest_warps[server_id][coords]
 
-	nearest_warp = warps[0]
+	server_warps = warps[server_id]
+	nearest_warp = server_warps[0]
 	min_distance = get_distance(coords, nearest_warp)
-	for warp in warps[1:]:
+	for warp in server_warps[1:]:
 		distance = get_distance(coords, warp)
 		if distance < min_distance:
 			min_distance = distance
 			nearest_warp = warp
 
 	warp = {'warp': nearest_warp, 'distance': min_distance}
-	nearest_warps[coords] = warp
+	nearest_warps[server_id][coords] = warp
 
 	return warp
 
@@ -76,7 +78,7 @@ def shops_history_last(request):
 
 	prepared_history = []
 	for event in history:
-		warp = get_warp(event[9:12])
+		warp = get_warp(3, event[9:12])
 		prepared_history.append((warp,) + event)
 
 	template = Template(filename=app_dir + 'templates/shops_history.mako')
@@ -88,6 +90,44 @@ def shops_history_last(request):
 day  = 3600 * 24
 week = day * 7
 
+class ItemStats:
+	def __init__(self, where_to_buy, where_to_sell, daily, weekly):
+		self.where_to_buy  = where_to_buy
+		self.where_to_sell = where_to_sell
+		self.daily  = daily
+		self.weekly = weekly
+
+def get_item_stats_data(cursor, server_id, item_id, stats_sql, where_to_buy_sql, where_to_sell_sql, start_time):
+	day_ago  = start_time - day
+	week_ago = start_time - week
+
+	request_params = {'server_id': server_id, 'item_id': item_id, 'created': week_ago}
+
+	cursor.execute(where_to_buy_sql, request_params)
+	where_to_buy = cursor.fetchall()
+	cursor.execute(where_to_sell_sql, request_params)
+	where_to_sell = cursor.fetchall()
+
+	cursor.execute(stats_sql, request_params)
+	weekly_stats = cursor.fetchall()
+	request_params['created'] = day_ago
+	cursor.execute(stats_sql, request_params)
+	daily_stats = cursor.fetchall()
+
+
+	prepared_where_to_buy = []
+	for shop in where_to_buy:
+		warp = get_warp(server_id, shop[-3:])
+		prepared_where_to_buy.append((warp,) + shop)
+
+	prepared_where_to_sell = []
+	for shop in where_to_sell:
+		warp = get_warp(server_id, shop[-3:])
+		prepared_where_to_sell.append((warp,) + shop)
+
+	return ItemStats(prepared_where_to_buy, prepared_where_to_sell, daily_stats, weekly_stats)
+
+
 def item_view(request):
 	start_time = time()
 	shops_sql = load_sql('item_shops.sql')
@@ -97,43 +137,27 @@ def item_view(request):
 	where_to_sell_sql = shops_sql.replace('[NOT]', '')    .replace('[DESC]', ' DESC')
 
 	item_id = int(request.matchdict['item_id'])
-	week_ago = start_time - week
-	request_params = {'item_id': item_id, 'created': week_ago}
-
+	server = 'server' in request.matchdict and request.matchdict['server'] or False
+	server_id = server and servers[server]
 
 	cursor = sql_connection.cursor()
-
 	cursor.execute("SELECT * FROM items WHERE id = %s;", (item_id,))
 	item_info = cursor.fetchone()
 
-	cursor.execute(where_to_buy_sql, request_params)
-	where_to_buy = cursor.fetchall()
-	cursor.execute(where_to_sell_sql, request_params)
-	where_to_sell = cursor.fetchall()
+	item_stats_by_server = {}
+	template = Template(filename=app_dir + 'templates/item.mako')
 
-	cursor.execute(stats_sql, (item_id, start_time - day))
-	daily_stats = cursor.fetchall()
-	cursor.execute(stats_sql, (item_id, start_time - week))
-	weekly_stats = cursor.fetchall()
+	if server:
+		item_stats = get_item_stats_data(cursor, server_id, item_id, stats_sql, where_to_buy_sql, where_to_sell_sql, start_time)
+		item_stats_by_server[server] = item_stats
+	else:
+		for server_id in servers_ids:
+			item_stats = get_item_stats_data(cursor, server_id, item_id, stats_sql, where_to_buy_sql, where_to_sell_sql, start_time)
+			item_stats_by_server[servers[server_id]] = item_stats
 
 	cursor.close()
 
-
-	prepared_where_to_buy = []
-	for shop in where_to_buy:
-		warp = get_warp((shop[-3:]))
-		prepared_where_to_buy.append((warp,) + shop)
-
-	prepared_where_to_sell = []
-	for shop in where_to_sell:
-		warp = get_warp((shop[-3:]))
-		prepared_where_to_sell.append((warp,) + shop)
-
-
-	template = Template(filename=app_dir + 'templates/item.mako')
-	result = template.render(start_time=start_time, item_info=item_info,
-		where_to_buy=prepared_where_to_buy, where_to_sell=prepared_where_to_sell,
-		daily_stats=daily_stats, weekly_stats=weekly_stats, get_termination=get_termination)
+	result = template.render(start_time=start_time, item_info=item_info, item_stats=item_stats_by_server, get_termination=get_termination)
 	response = Response(result)
 
 	return response
@@ -153,6 +177,18 @@ def items_view(request):
 
 	return response
 
+def get_servers():
+	global servers, servers_ids
+
+	cursor = sql_connection.cursor()
+	cursor.execute("SELECT id, name FROM servers WHERE name != 'Carnage';")
+	servers, servers_ids = {}, []
+	for server_id, server_name in cursor.fetchall():
+		servers[server_id]   = server_name
+		servers[server_name] = server_id
+		servers_ids.append(server_id)
+	cursor.close()
+
 def main(global_config, **settings):
 	global app_dir, sql_connection
 	app_dir = settings['buildout_dir']
@@ -161,6 +197,7 @@ def main(global_config, **settings):
 		password = input.read().strip()
 
 	sql_connection = psycopg2.connect("dbname='ensemplix' user='ensemplix' host='localhost' password='%s'" % (password,))
+	get_servers()
 
 
 	config = Configurator(settings=settings)
@@ -169,7 +206,9 @@ def main(global_config, **settings):
 	config.add_view(shops_history_last, route_name='shops_history_last')
 
 	config.add_route('item', '/item/{item_id}')
+	config.add_route('server_item', '{server}/item/{item_id}')
 	config.add_view(item_view, route_name='item')
+	config.add_view(item_view, route_name='server_item')
 
 	config.add_route('items', '/items')
 	config.add_view(items_view, route_name='items')
