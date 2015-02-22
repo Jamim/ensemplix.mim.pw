@@ -18,7 +18,7 @@
 						</td>
 						<td>
 							<a class="label label-primary" href="/item/${row[6]}">#${row[6]} ${row[7].capitalize().replace('_', ' ')}</a><br />
-							${row[8]} шт. за <b>${row[9]} койн${get_termination(row[9], ('', 'а', 'ов'))}</b>
+							${row[8]} шт. за <b>${row[9]}&nbsp;койн${get_termination(row[9], ('', 'а', 'ов'))}</b>
 						</td>
 						<td>${row[10]},${row[11]},${row[12]}</td>
 						<td>${strftime('%Y.%m.%d %H:%M:%S', localtime(row[13]))}</td>

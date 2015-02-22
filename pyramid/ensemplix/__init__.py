@@ -76,7 +76,7 @@ def shops_history_last(request):
 
 	prepared_history = []
 	for event in history:
-		warp = get_warp((event[9:12]))
+		warp = get_warp(event[9:12])
 		prepared_history.append((warp,) + event)
 
 	template = Template(filename=app_dir + 'templates/shops_history.mako')
@@ -90,21 +90,50 @@ week = day * 7
 
 def item_view(request):
 	start_time = time()
-	sql = load_sql('item_stats.sql')
+	where_sql = load_sql('item_where.sql')
+	stats_sql = load_sql('item_stats.sql')
+
+	where_to_buy_sql  = where_sql.replace('[NOT]', 'NOT ').replace('[DESC]', '')
+	where_to_sell_sql = where_sql.replace('[NOT]', '')    .replace('[DESC]', ' DESC')
 
 	item_id = int(request.matchdict['item_id'])
+	week_ago = start_time - week
+	request_params = {'item_id': item_id, 'created': week_ago}
+
 
 	cursor = sql_connection.cursor()
+
 	cursor.execute("SELECT * FROM items WHERE id = %s;", (item_id,))
 	item_info = cursor.fetchone()
-	cursor.execute(sql, (item_id, start_time - day))
+
+	cursor.execute(where_to_buy_sql, request_params)
+	where_to_buy = cursor.fetchall()
+	cursor.execute(where_to_sell_sql, request_params)
+	where_to_sell = cursor.fetchall()
+
+	cursor.execute(stats_sql, (item_id, start_time - day))
 	daily_stats = cursor.fetchall()
-	cursor.execute(sql, (item_id, start_time - week))
+	cursor.execute(stats_sql, (item_id, start_time - week))
 	weekly_stats = cursor.fetchall()
+
 	cursor.close()
 
+
+	prepared_where_to_buy = []
+	for shop in where_to_buy:
+		warp = get_warp((shop[-3:]))
+		prepared_where_to_buy.append((warp,) + shop)
+
+	prepared_where_to_sell = []
+	for shop in where_to_sell:
+		warp = get_warp((shop[-3:]))
+		prepared_where_to_sell.append((warp,) + shop)
+
+
 	template = Template(filename=app_dir + 'templates/item.mako')
-	result = template.render(start_time=start_time, item_info=item_info, daily_stats=daily_stats, weekly_stats=weekly_stats, get_termination=get_termination)
+	result = template.render(start_time=start_time, item_info=item_info,
+		where_to_buy=prepared_where_to_buy, where_to_sell=prepared_where_to_sell,
+		daily_stats=daily_stats, weekly_stats=weekly_stats, get_termination=get_termination)
 	response = Response(result)
 
 	return response
