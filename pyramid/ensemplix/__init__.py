@@ -166,9 +166,10 @@ def items_view(request):
 	start_time = time()
 	week_ago = start_time - week
 	sql = load_sql('items_stats.sql')
+	request_params = {'created': week_ago}
 
 	cursor = sql_connection.cursor()
-	cursor.execute(sql, (week_ago, week_ago));
+	cursor.execute(sql, request_params)
 	items = cursor.fetchall()
 
 	template = Template(filename=app_dir + 'templates/items.mako')
