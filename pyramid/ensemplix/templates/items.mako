@@ -19,7 +19,7 @@ ${make_price_td('Amber',   item.id_with_data, item.amber_buy_price,   item.amber
 							<br />
 							% endif
 							%if sell:
-							<a class="label label-danger" href="/${server}/item/${id_with_data}" title="Продажа в магазин на ${server}">${'{0:.6f}'.format(sell).rstrip('0').rstrip('.')}</a>
+							<a class="label label-${buy and sell and buy < sell and 'success' or 'danger'}" href="/${server}/item/${id_with_data}" title="Продажа в магазин на ${server}">${'{0:.6f}'.format(sell).rstrip('0').rstrip('.')}</a>
 							% endif
 						</td>
 </%def>\
