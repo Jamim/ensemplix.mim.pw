@@ -15,15 +15,20 @@ sql_connection = psycopg2.connect("dbname='ensemplix' user='ensemplix' host='loc
 
 cursor = sql_connection.cursor()
 
+max_deal_id = 0
+existed_deals_ids = set()
+if len(argv) < 3:
+	cursor.execute("SELECT max(id) FROM shops_history;")
+	max_deal_id = cursor.fetchone()[0]
+else:
+	max_deal_id = int(argv[2])
+	cursor.execute("SELECT id FROM shops_history WHERE id > %s;", (max_deal_id,))
+	rows = cursor.fetchall()
+	existed_deals_ids = {id for id, in rows}
 
-cursor.execute("SELECT max(id) FROM shops_history;")
-max_deal_id = cursor.fetchone()[0]
-
-servers = {}
 cursor.execute("SELECT world, id FROM servers;")
 rows = cursor.fetchall()
-for world, id in rows:
-	servers[world] = id
+servers = dict((world, id) for world, id in rows)
 
 players = {}
 cursor.execute("SELECT lower(player), id FROM players;")
@@ -50,7 +55,7 @@ def check_players(new_players, *players_for_check):
 		if player not in players and player not in new_players:
 			new_players.append(player)
 
-def prepare_data(history, new_players, new_items, new_deals, new_deals_ids):
+def prepare_data(history, new_players, new_items, new_deals, deals_ids):
 	for deal in history:
 		client = deal['from'].lower()
 		owner  = deal['to'].lower()
@@ -67,13 +72,13 @@ def prepare_data(history, new_players, new_items, new_deals, new_deals_ids):
 			new_items.append({'id': item_id, 'data': data, 'title': title, 'icon_image': icon_image})
 
 		deal_id = deal['id']
-		if deal_id > max_deal_id and deal_id not in new_deals_ids:
+		if deal_id > max_deal_id and deal_id not in deals_ids:
 			new_deals.append(deal)
-			new_deals_ids.add(deal_id)
+			deals_ids.add(deal_id)
 
 def update():
-	global max_deal_id
-	new_players, new_items, new_deals, new_deals_ids = [], [], [], set()
+	global max_deal_id, existed_deals_ids
+	new_players, new_items, new_deals, deals_ids = [], [], [], existed_deals_ids
 
 	offset = 0
 	complete = False
@@ -81,10 +86,16 @@ def update():
 
 	while not complete:
 		history = get_history(offset)
-		prepare_data(history, new_players, new_items, new_deals, new_deals_ids)
+		prepare_data(history, new_players, new_items, new_deals, deals_ids)
 		new_max_deal_id = max(new_max_deal_id, history[0]['id'])
+
 		offset += 100
-		complete = history[-1]['id'] < max_deal_id + 2 # да-да, именно два
+		start_id = history[-1]['id'] - 1
+		while start_id in deals_ids:
+			offset   += 1
+			start_id -= 1
+
+		complete = start_id <= max_deal_id
 
 
 	max_deal_id = new_max_deal_id
@@ -97,6 +108,7 @@ def update():
 
 	cursor.close()
 	sql_connection.commit()
+	existed_deals_ids.clear()
 
 
 interrupted = False
