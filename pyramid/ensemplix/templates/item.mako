@@ -25,8 +25,8 @@ ${make_shop_row(shop)}\
 <%def name="make_shop_row(shop)">\
 								<tr>
 									<td>
-										<span class="label label-warning">${shop[0]['warp'][3]}</span><br />
-										<span class="small text-muted">${'%.1f' % (shop[0]['distance'],)} метра</span>
+										<span class="label label-warning">${shop[0].title}</span><br />
+										<span class="small text-muted">${'%.1f' % (shop[0].distance,)} метра</span>
 									</td>
 									<td>
 										<a class="label label-info" href="http://webapi.ensemplix.ru/#${shop[1]}">${shop[1]}</a><br />
@@ -91,16 +91,16 @@ ${'{0:.6f}'.format(price).rstrip('0').rstrip('.')}<br /><span class="small text-
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<link rel="stylesheet" href="/css/mim.bootstrap.min.css" />
-		<title>#${item_info[0]} ${item_info[1].capitalize().replace('_', ' ')} &bull;${len(item_stats) == 1 and ' %s &bull;' % (tuple(item_stats.keys())[0],) or ''} Сведения о предмете Ensemplix</title>
+		<title>${item.id_with_title} &bull;${single_server and ' %s &bull;' % (single_server,) or ''} Сведения о предмете Ensemplix</title>
 	</head>
 	<body role="document">
 		<div class="container theme-showcase" role="main">
 			<div class="page-header">
-				<h2><img src="${item_info[2]}" alt="${item_info[1]}" /> #${item_info[0]} ${item_info[1].capitalize().replace('_', ' ')}</h2>
+				<h2><img src="${item.icon_image}" alt="${item.title}" /> ${item.id_with_title}</h2>
 			</div>
-% for server in (len(item_stats) == 3 and ('Davids', 'Sandbox', 'Amber') or item_stats):
-<% stats = item_stats[server] %>\
-% if stats.where_to_buy or item_stats[server].where_to_sell:
+% for server in (len(item.stats) == 3 and ('Davids', 'Sandbox', 'Amber') or item.stats):
+<% stats = item.stats[server] %>\
+% if stats.where_to_buy or stats.where_to_sell:
 			<div class="page-header">
 				<h3>Магазины ${server}</h3>
 			</div>

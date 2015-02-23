@@ -19,11 +19,26 @@ def get_termination(count, variants):
 
 	return variants[2]
 
-def get_distance(coords0, coords1):
-	return sqrt((coords0[0] - coords1[0])**2 + (coords0[1] - coords1[1])**2 + (coords0[2] - coords1[2])**2)
-
 warps_expire_delay = 1800 # полчаса
 warps_expire_time = 0
+
+class Warp:
+	def __init__(self, x, y, z, title):
+		self.x = x
+		self.y = y
+		self.z = z
+		self.title = title
+
+	def get_distance(self, x, y, z):
+		return sqrt((self.x - x)**2 + (self.y - y)**2 + (self.z - z)**2)
+
+	def set_distance(self, distance):
+		self.distance = distance
+
+	def clone(self, distance):
+		warp = Warp(self.x, self.y, self.z, self.title)
+		warp.set_distance(distance)
+		return warp
 
 def update_warps():
 	global warps, nearest_warps
@@ -32,30 +47,39 @@ def update_warps():
 	warps, nearest_warps = {}, {}
 	for server_id in servers_ids:
 		cursor.execute('SELECT x, y, z, warp FROM warps WHERE server_id = %s;', (server_id,))
-		warps[server_id] = cursor.fetchall()
-		nearest_warps[server_id] = {}
+
+		server = servers[server_id]
+		server_warps = [Warp(*warp) for warp in cursor.fetchall()]
+		empty = {}
+
+		warps[server_id] = server_warps
+		warps[server]    = server_warps
+
+		nearest_warps[server_id] = empty
+		nearest_warps[server]    = empty
+
 	cursor.close()
 
 	warps_expire_time = time() + warps_expire_delay
 
-def get_warp(server_id, coords):
+def get_warp(server, coords):
 	if warps_expire_time < time():
 		update_warps()
 
-	if coords in nearest_warps[server_id]:
-		return nearest_warps[server_id][coords]
+	if coords in nearest_warps[server]:
+		return nearest_warps[server][coords]
 
-	server_warps = warps[server_id]
+	server_warps = warps[server]
 	nearest_warp = server_warps[0]
-	min_distance = get_distance(coords, nearest_warp)
+	min_distance = nearest_warp.get_distance(*coords)
 	for warp in server_warps[1:]:
-		distance = get_distance(coords, warp)
+		distance = warp.get_distance(*coords)
 		if distance < min_distance:
 			min_distance = distance
 			nearest_warp = warp
 
-	warp = {'warp': nearest_warp, 'distance': min_distance}
-	nearest_warps[server_id][coords] = warp
+	warp = nearest_warp.clone(min_distance)
+	nearest_warps[server][coords] = warp
 
 	return warp
 
@@ -66,6 +90,22 @@ def load_file(filename):
 
 def load_sql(filename):
 	return load_file('sql/' + filename)
+
+class Deal:
+	def __init__(self, server, deal):
+		coords = deal[11:14]
+
+		self.id        = deal[0]
+		self.time      = deal[1]
+		self.operation = deal[2]
+		self.client    = deal[3]
+		self.owner     = deal[4]
+		self.item      = Item(*deal[5:9])
+		self.amount    = deal[9]
+		self.price     = deal[10]
+		self.coords    = '%d,%d,%d' % (coords)
+		self.server    = server or deal[14]
+		self.warp      = get_warp(self.server, coords)
 
 def shops_history_last(request):
 	start_time = time()
@@ -79,22 +119,40 @@ def shops_history_last(request):
 
 	cursor = sql_connection.cursor()
 	cursor.execute(sql, request_params)
-	history = cursor.fetchall()
+	history = [Deal(server, deal) for deal in cursor.fetchall()]
 	cursor.close()
 
-	prepared_history = []
-	for event in history:
-		warp = get_warp(3, event[9:12])
-		prepared_history.append((warp,) + event)
-
 	template = Template(filename=app_dir + 'templates/shops_history.mako')
-	result = template.render(start_time=start_time, server=server, history=prepared_history, get_termination=get_termination)
+	result = template.render(start_time=start_time, server=server, history=history, get_termination=get_termination)
 	response = Response(result)
 
 	return response
 
 day  = 3600 * 24
 week = day * 7
+
+class Item:
+	def __init__(self, id, data, title, icon_image):
+		self.id          = id
+		self.data       = data
+		self.title      = title
+		self.icon_image = icon_image
+		self.id_with_data = data and "%d:%d" % (id, data) or str(id)
+		self.id_with_title = '#%s %s' % (self.id_with_data, self.title.capitalize().replace('_', ' '))
+
+	def set_stats(self, stats):
+		self.stats = stats
+
+	def set_prices(self,
+			davids_buy_price,  davids_sell_price,
+			sandbox_buy_price, sandbox_sell_price,
+			amber_buy_price,   amber_sell_price):
+		self.davids_buy_price    = davids_buy_price
+		self.davids_sell_price  = davids_sell_price
+		self.sandbox_buy_price  = sandbox_buy_price
+		self.sandbox_sell_price = sandbox_sell_price
+		self.amber_buy_price    = amber_buy_price
+		self.amber_sell_price   = amber_sell_price
 
 class ItemStats:
 	def __init__(self, where_to_buy, where_to_sell, daily, weekly):
@@ -103,11 +161,16 @@ class ItemStats:
 		self.daily  = daily
 		self.weekly = weekly
 
-def get_item_stats_data(cursor, server_id, item_id, stats_sql, where_to_buy_sql, where_to_sell_sql, start_time):
+def get_item_with_prices(values):
+	item = Item(*values[:4])
+	item.set_prices(*values[4:])
+	return item
+
+def get_item_stats_data(cursor, server_id, item, stats_sql, where_to_buy_sql, where_to_sell_sql, start_time):
 	day_ago  = start_time - day
 	week_ago = start_time - week
 
-	request_params = {'server_id': server_id, 'item_id': item_id, 'created': week_ago}
+	request_params = {'server_id': server_id, 'item_id': item.id, 'data': item.data, 'created': week_ago}
 
 	cursor.execute(where_to_buy_sql, request_params)
 	where_to_buy = cursor.fetchall()
@@ -142,28 +205,32 @@ def item_view(request):
 	where_to_buy_sql  = shops_sql.replace('[NOT]', 'NOT ').replace('[DESC]', '')
 	where_to_sell_sql = shops_sql.replace('[NOT]', '')    .replace('[DESC]', ' DESC')
 
-	item_id = int(request.matchdict['item_id'])
-	server = 'server' in request.matchdict and request.matchdict['server'] or False
+	params = request.matchdict
+	item_id = int(params['item_id'])
+	data   = 'data'   in params and int(params['data']) or 0
+	server = 'server' in params and params['server'] or False
 	server_id = server and servers[server]
 
 	cursor = sql_connection.cursor()
-	cursor.execute("SELECT * FROM items WHERE id = %s;", (item_id,))
-	item_info = cursor.fetchone()
+	cursor.execute("SELECT title, icon_image FROM items WHERE id = %s AND data = %s;", (item_id, data))
+	row = cursor.fetchone()
+	item = Item(item_id, data, *row)
 
 	item_stats_by_server = {}
 	template = Template(filename=app_dir + 'templates/item.mako')
 
 	if server:
-		item_stats = get_item_stats_data(cursor, server_id, item_id, stats_sql, where_to_buy_sql, where_to_sell_sql, start_time)
-		item_stats_by_server[server] = item_stats
+		stats = get_item_stats_data(cursor, server_id, item, stats_sql, where_to_buy_sql, where_to_sell_sql, start_time)
+		item.set_stats({server: stats})
 	else:
+		stats = {}
 		for server_id in servers_ids:
-			item_stats = get_item_stats_data(cursor, server_id, item_id, stats_sql, where_to_buy_sql, where_to_sell_sql, start_time)
-			item_stats_by_server[servers[server_id]] = item_stats
+			stats[servers[server_id]] = get_item_stats_data(cursor, server_id, item, stats_sql, where_to_buy_sql, where_to_sell_sql, start_time)
+		item.set_stats(stats)
 
 	cursor.close()
 
-	result = template.render(start_time=start_time, item_info=item_info, item_stats=item_stats_by_server, get_termination=get_termination)
+	result = template.render(start_time=start_time, single_server=server, item=item, get_termination=get_termination)
 	response = Response(result)
 
 	return response
@@ -176,7 +243,7 @@ def items_view(request):
 
 	cursor = sql_connection.cursor()
 	cursor.execute(sql, request_params)
-	items = cursor.fetchall()
+	items = [get_item_with_prices(item) for item in cursor.fetchall()]
 
 	template = Template(filename=app_dir + 'templates/items.mako')
 	result = template.render(start_time=start_time, items=items)
@@ -214,9 +281,13 @@ def main(global_config, **settings):
 	config.add_view(shops_history_last, route_name='shops_history_last')
 	config.add_view(shops_history_last, route_name='server_shops_history_last')
 
-	config.add_route('item', '/item/{item_id}')
-	config.add_route('server_item', '/{server}/item/{item_id}')
+	config.add_route('item_data', '/item/{item_id}:{data}')
+	config.add_route('item',      '/item/{item_id}')
+	config.add_route('server_item_data', '/{server}/item/{item_id}:{data}')
+	config.add_route('server_item',      '/{server}/item/{item_id}')
+	config.add_view(item_view, route_name='item_data')
 	config.add_view(item_view, route_name='item')
+	config.add_view(item_view, route_name='server_item_data')
 	config.add_view(item_view, route_name='server_item')
 
 	config.add_route('items', '/items')

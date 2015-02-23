@@ -3,23 +3,23 @@
 <%def name="make_items_row(item)">\
 					<tr>
 						<td>
-							<a href="/item/${item[0]}"><img src="${item[2]}" alt="${item[1]}"/></a>
-							<a class="label label-primary" href="/item/${item[0]}">#${item[0]} ${item[1].capitalize().replace('_', ' ')}</a>
+							<a href="/item/${item.id_with_data}"><img src="${item.icon_image}" alt="${item.title}"/></a>
+							<a class="label label-primary" href="/item/${item.id_with_data}">${item.id_with_title}</a>
 						</td>
-${make_price_td('Davids',  item[0], item[3], item[4])}\
-${make_price_td('Sandbox', item[0], item[5], item[6])}\
-${make_price_td('Amber',   item[0], item[7], item[8])}\
+${make_price_td('Davids',  item.id_with_data, item.davids_buy_price,  item.davids_sell_price)}\
+${make_price_td('Sandbox', item.id_with_data, item.sandbox_buy_price, item.sandbox_sell_price)}\
+${make_price_td('Amber',   item.id_with_data, item.amber_buy_price,   item.amber_sell_price)}\
 					</tr>
 </%def>\
-<%def name="make_price_td(server, item_id, buy, sell)">\
+<%def name="make_price_td(server, id_with_data, buy, sell)">\
 						<td>
 							% if buy:
-							<a class="label label-warning" href="/${server}/item/${item_id}" title="Покупка из магазина на ${server}">${'{0:.6f}'.format(buy).rstrip('0').rstrip('.')}</a><br />
+							<a class="label label-warning" href="/${server}/item/${id_with_data}" title="Покупка из магазина на ${server}">${'{0:.6f}'.format(buy).rstrip('0').rstrip('.')}</a><br />
 							% else:
 							<br />
 							% endif
 							%if sell:
-							<a class="label label-danger" href="/${server}/item/${item_id}" title="Продажа в магазин на ${server}">${'{0:.6f}'.format(sell).rstrip('0').rstrip('.')}</a>
+							<a class="label label-danger" href="/${server}/item/${id_with_data}" title="Продажа в магазин на ${server}">${'{0:.6f}'.format(sell).rstrip('0').rstrip('.')}</a>
 							% endif
 						</td>
 </%def>\

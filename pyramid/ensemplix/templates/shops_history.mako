@@ -1,32 +1,32 @@
 ## -*- coding: utf-8 -*-
 <%! from time import time, localtime, strftime %>\
-<%def name="make_history_row(row)">\
+<%def name="make_history_row(deal)">\
 					<tr>
 						% if not server:
 						<td>
-							<a class="label label-default" href="/${row[14]}/shops/history/last">${row[14]}</a>
+							<a class="label label-default" href="/${deal.server}/shops/history/last">${deal.server}</a>
 						</td>
 						% endif
 						<td>
-							<span class="label label-warning">${row[0]['warp'][3]}</span><br />
-							<span class="small text-muted">${'%.1f' % (row[0]['distance'],)} метра</span>
+							<span class="label label-warning">${deal.warp.title}</span><br />
+							<span class="small text-muted">${'%.1f' % (deal.warp.distance,)} метра</span>
 						</td>
 						<td>
-							<a class="label label-success" href="http://webapi.ensemplix.ru/#${row[2]}">${row[2]}</a>
-							${row[3] and 'продал' or 'купил у'}
-							<a class="label label-info" href="http://webapi.ensemplix.ru/#${row[4]}">${row[4]}</a>
+							<a class="label label-success" href="http://webapi.ensemplix.ru/#${deal.client}">${deal.client}</a>
+							${deal.operation and 'продал' or 'купил у'}
+							<a class="label label-info" href="http://webapi.ensemplix.ru/#${deal.owner}">${deal.owner}</a>
 						</td>
 						<td>
-							<a href="/${server or row[14]}/item/${row[6]}">
-								<img src="${row[5]}" alt="${row[7]}"/>
+							<a href="/${server or deal.server}/item/${deal.item.id_with_data}">
+								<img src="${deal.item.icon_image}" alt="${deal.item.title}"/>
 							</a>
 						</td>
 						<td>
-							<a class="label label-primary" href="/${server or row[14]}/item/${row[6]}">#${row[6]} ${row[7].capitalize().replace('_', ' ')}</a><br />
-							${row[8]} шт. за <b>${row[9]}&nbsp;койн${get_termination(row[9], ('', 'а', 'ов'))}</b>
+							<a class="label label-primary" href="/${server or deal.server}/item/${deal.item.id_with_data}">${deal.item.id_with_title}</a><br />
+							${deal.amount} шт. за <b>${deal.price}&nbsp;койн${get_termination(deal.price, ('', 'а', 'ов'))}</b>
 						</td>
-						<td>${row[10]},${row[11]},${row[12]}</td>
-						<td>${strftime('%Y.%m.%d %H:%M:%S', localtime(row[13]))}</td>
+						<td>${deal.coords}</td>
+						<td>${strftime('%Y.%m.%d %H:%M:%S', localtime(deal.time))}</td>
 					</tr>
 </%def>\
 <!DOCTYPE html>
@@ -55,8 +55,8 @@
 					</tr>
 				</thead>
 				<tbody>
-				% for event in history:
-${make_history_row(event)}\
+				% for deal in history:
+${make_history_row(deal)}\
 				% endfor
 				</tbody>
 			</table>

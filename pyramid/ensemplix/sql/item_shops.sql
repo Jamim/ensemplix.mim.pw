@@ -6,10 +6,11 @@ FROM shops_history
 		SELECT max(created) AS last_created, x, y, z
 		FROM shops_history
 		WHERE
-			server_id = %(server_id)s
-			AND item_id = %(item_id)s
-			AND created > %(created)s
-			AND [NOT]operation
+			server_id = %(server_id)s AND
+			item_id   = %(item_id)s   AND
+			data      = %(data)s      AND
+			created   > %(created)s   AND
+			[NOT]operation
 		GROUP BY x, y, z
 	) AS last_shops_history ON
 		created = last_created AND
@@ -19,8 +20,9 @@ FROM shops_history
 	JOIN players AS owners ON owners.id = to_id
 WHERE
 	server_id = %(server_id)s AND
-	item_id = %(item_id)s AND
-	created > %(created)s AND
+	item_id   = %(item_id)s   AND
+	data      = %(data)s      AND
+	created   > %(created)s   AND
 	[NOT]operation
 ORDER BY
 	price_for_single[DESC], last_created DESC, amount, x, y, z;

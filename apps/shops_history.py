@@ -50,17 +50,16 @@ cursor.execute("SELECT id FROM shops_history WHERE id IN %s;", [tuple(events)])
 rows = cursor.fetchall()
 events = [row[0] for row in rows]
 
-cursor.execute("SELECT id FROM items WHERE id IN %s;", [tuple(items)])
-rows = cursor.fetchall()
-items = [row[0] for row in rows]
+cursor.execute("SELECT id, data FROM items WHERE id IN %s;", [tuple(items)])
+items = cursor.fetchall()
 
 new_items = []
 new_events = []
 for event in history:
-	item_id = event['item_id']
-	if item_id not in items:
-		new_items.append({'id': item_id, 'title': event['item'], 'icon_image': event['icon_image']})
-		items.append(item_id)
+	item_id, data = event['item_id'], event['data']
+	if (item_id, data) not in items:
+		new_items.append({'id': item_id, 'data': data, 'title': event['item'], 'icon_image': event['icon_image']})
+		items.append((item_id, data))
 
 	if event['id'] not in events:
 		event['server_id'] = servers[event['world']]
@@ -68,7 +67,7 @@ for event in history:
 		event['to_id']     = players[event['to'].lower()]
 		new_events.append(event)
 
-cursor.executemany("INSERT INTO items VALUES (%(id)s, %(title)s, %(icon_image)s);", new_items)
+cursor.executemany("INSERT INTO items VALUES (%(id)s, %(data)s, %(title)s, %(icon_image)s);", new_items)
 cursor.executemany("INSERT INTO shops_history VALUES (%(id)s, %(created)s, %(server_id)s, %(item_id)s, "
 	"%(amount)s, %(price)s, %(operation)s, %(from_id)s, %(to_id)s, %(x)s, %(y)s, %(z)s, %(data)s);", new_events)
 cursor.close()
