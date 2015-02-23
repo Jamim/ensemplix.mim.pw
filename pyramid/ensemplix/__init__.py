@@ -71,8 +71,14 @@ def shops_history_last(request):
 	start_time = time()
 	sql = load_sql('shops_history_last.sql')
 
+	server = 'server' in request.matchdict and request.matchdict['server'] or False
+	server_id = server and servers[server]
+
+	sql = sql.replace('[server]', not server and ', servers.name' or '').replace('[JOIN]', not server and '\tJOIN servers ON servers.id = server_id\n' or '').replace('[WHERE]', server and 'WHERE server_id=%(server_id)s ' or '')
+	request_params = {'server_id': server_id}
+
 	cursor = sql_connection.cursor()
-	cursor.execute(sql)
+	cursor.execute(sql, request_params)
 	history = cursor.fetchall()
 	cursor.close()
 
@@ -82,7 +88,7 @@ def shops_history_last(request):
 		prepared_history.append((warp,) + event)
 
 	template = Template(filename=app_dir + 'templates/shops_history.mako')
-	result = template.render(start_time=start_time, history=prepared_history, get_termination=get_termination)
+	result = template.render(start_time=start_time, server=server, history=prepared_history, get_termination=get_termination)
 	response = Response(result)
 
 	return response
@@ -204,10 +210,12 @@ def main(global_config, **settings):
 	config = Configurator(settings=settings)
 
 	config.add_route('shops_history_last', '/shops/history/last')
+	config.add_route('server_shops_history_last', '/{server}/shops/history/last')
 	config.add_view(shops_history_last, route_name='shops_history_last')
+	config.add_view(shops_history_last, route_name='server_shops_history_last')
 
 	config.add_route('item', '/item/{item_id}')
-	config.add_route('server_item', '{server}/item/{item_id}')
+	config.add_route('server_item', '/{server}/item/{item_id}')
 	config.add_view(item_view, route_name='item')
 	config.add_view(item_view, route_name='server_item')
 
