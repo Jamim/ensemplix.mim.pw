@@ -1,22 +1,19 @@
-def check_players(api_connection, cursor, players_list):
-	cursor.execute("SELECT player, id FROM players WHERE lower(player) IN %s;", [tuple(players_list)])
-	rows = cursor.fetchall()
+import ensemplix_http
+from ensemplix_log import log
 
-	players = {}
-	for player, id in rows:
-		player = player.lower()
-		players[player] = id
-		players_list.remove(player)
 
-	if players_list:
-		import ensemplix_http
+def insert_players(api_connection, cursor, players, new_players):
+	if not new_players:
+		return
 
-		new_players = []
-		for player_name in players_list:
-			player = ensemplix_http.get_data(api_connection, 'player/info/%s/' % (player_name,))[0]
-			new_players.append(player)
-			players[player_name] = player['id']
-		cursor.executemany("INSERT INTO players VALUES (%(id)s, %(level)s, %(player)s, %(registration)s, "
-			"%(logo_url)s, %(prefix)s, %(name_color)s, %(chat_color)s);", new_players)
+	new_players_data = []
+	for player in new_players:
+		player_data = ensemplix_http.get_data(api_connection, 'player/info/%s/' % (player,))[0]
+		log('Новый игрок: %s', player_data['player'])
+		new_players_data.append(player_data)
+		players[player] = player_data['id']
 
-	return players
+	cursor.executemany("INSERT INTO players VALUES (%(id)s, %(level)s, %(player)s, %(registration)s, "
+		"%(logo_url)s, %(prefix)s, %(name_color)s, %(chat_color)s);", new_players_data)
+
+	log('Добавлено игроков: %d', len(new_players))
