@@ -133,7 +133,7 @@ week = day * 7
 
 class Item:
 	def __init__(self, id, data, title, icon_image):
-		self.id          = id
+		self.id         = id
 		self.data       = data
 		self.title      = title
 		self.icon_image = icon_image
