@@ -34,6 +34,7 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<link rel="stylesheet" href="/css/mim.bootstrap.min.css" />
+		<link rel="icon" type="image/x-icon" href="/images/favicon.ico" />
 		<title>${server and server + ' &bull; ' or ''}История магазинов Ensemplix</title>
 	</head>
 	<body role="document">

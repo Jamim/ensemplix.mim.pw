@@ -28,6 +28,7 @@ ${make_price_td('Amber',   item.id_with_data, item.amber_buy_price,   item.amber
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<link rel="stylesheet" href="/css/mim.bootstrap.min.css" />
+		<link rel="icon" type="image/x-icon" href="/images/favicon.ico" />
 		<title>Лучше курсы Ensemplix</title>
 	</head>
 	<body role="document">

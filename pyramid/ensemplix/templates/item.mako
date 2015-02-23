@@ -91,6 +91,7 @@ ${'{0:.6f}'.format(price).rstrip('0').rstrip('.')}<br /><span class="small text-
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<link rel="stylesheet" href="/css/mim.bootstrap.min.css" />
+		<link rel="icon" type="image/png" href="${item.icon_image}" />
 		<title>${item.id_with_title} &bull;${single_server and ' %s &bull;' % (single_server,) or ''} Сведения о предмете Ensemplix</title>
 	</head>
 	<body role="document">
