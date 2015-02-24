@@ -1,0 +1,5 @@
+# Слава роботам!
+
+User-Agent: *
+Crawl-delay: 2
+Sitemap: http://ensemplix.mim.pw/sitemaps/sitemaps-index.xml
