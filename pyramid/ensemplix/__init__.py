@@ -103,9 +103,24 @@ class Deal:
 		self.item      = Item(*deal[5:9])
 		self.amount    = deal[9]
 		self.price     = deal[10]
-		self.coords    = '%d,%d,%d' % (coords)
+		self.coords    = '%d,%d,%d' % coords
 		self.server    = server or deal[14]
 		self.warp      = get_warp(self.server, coords)
+
+class Shop:
+	def __init__(self, server, shop):
+		coords = shop[-3:]
+
+		self.owner        = shop[0]
+		self.single_price = shop[1]
+		self.amount       = shop[2]
+		self.price        = shop[3]
+		self.deal_id      = shop[4]
+		self.deal_time    = shop[5]
+		self.attestation  = shop[6]
+		self.reason       = shop[7]
+		self.coords       = '%d,%d,%d' % coords
+		self.warp         = get_warp(server, coords)
 
 def shops_history_last(request):
 	start_time = time()
@@ -173,9 +188,9 @@ def get_item_stats_data(cursor, server_id, item, stats_sql, where_to_buy_sql, wh
 	request_params = {'server_id': server_id, 'item_id': item.id, 'data': item.data, 'created': week_ago}
 
 	cursor.execute(where_to_buy_sql, request_params)
-	where_to_buy = cursor.fetchall()
+	where_to_buy  = [Shop(server_id, shop) for shop in cursor.fetchall()]
 	cursor.execute(where_to_sell_sql, request_params)
-	where_to_sell = cursor.fetchall()
+	where_to_sell = [Shop(server_id, shop) for shop in cursor.fetchall()]
 
 	cursor.execute(stats_sql, request_params)
 	weekly_stats = cursor.fetchall()
@@ -183,18 +198,7 @@ def get_item_stats_data(cursor, server_id, item, stats_sql, where_to_buy_sql, wh
 	cursor.execute(stats_sql, request_params)
 	daily_stats = cursor.fetchall()
 
-
-	prepared_where_to_buy = []
-	for shop in where_to_buy:
-		warp = get_warp(server_id, shop[-3:])
-		prepared_where_to_buy.append((warp,) + shop)
-
-	prepared_where_to_sell = []
-	for shop in where_to_sell:
-		warp = get_warp(server_id, shop[-3:])
-		prepared_where_to_sell.append((warp,) + shop)
-
-	return ItemStats(prepared_where_to_buy, prepared_where_to_sell, daily_stats, weekly_stats)
+	return ItemStats(where_to_buy, where_to_sell, daily_stats, weekly_stats)
 
 
 def item_view(request):

@@ -25,19 +25,19 @@ ${make_shop_row(shop)}\
 <%def name="make_shop_row(shop)">\
 								<tr>
 									<td>
-										<span class="label label-warning">${shop[0].title}</span><br />
-										<span class="small text-muted">${'%.1f' % (shop[0].distance,)} метра</span>
+										<span class="label label-warning">${shop.warp.title}</span><br />
+										<span class="small text-muted">${'%.1f' % (shop.warp.distance,)} метра</span>
 									</td>
 									<td>
-										<a class="label label-info" href="http://webapi.ensemplix.ru/#${shop[1]}">${shop[1]}</a><br />
-										<span class="small text-muted">${shop[6]},${shop[7]},${shop[8]}</span>
+										<a class="label label-info" href="http://webapi.ensemplix.ru/#${shop.owner}">${shop.owner}</a><br />
+										<span class="small text-muted">${shop.coords}</span>
 									</td>
 									<td>
-										${make_price(shop[2])}
+										${make_price(shop.single_price)}
 									</td>
 									<td>
-										${shop[3]} шт. за <b>${shop[4]}&nbsp;койн${get_termination(shop[4], ('', 'а', 'ов'))}</b><br />
-										<span class="small text-muted">${strftime('%Y.%m.%d %H:%M:%S', localtime(shop[5]))}</span>
+										${shop.amount} шт. за <b>${shop.price}&nbsp;койн${get_termination(shop.price, ('', 'а', 'ов'))}</b><br />
+										<span class="small text-muted">${strftime('%Y.%m.%d %H:%M:%S', localtime(shop.deal_time))}</span>
 									</td>
 								</tr>
 </%def>\
