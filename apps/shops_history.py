@@ -110,13 +110,15 @@ def update():
 	sql_connection.commit()
 	existed_deals_ids.clear()
 
+minute = 60
+slowpoke_k = 0.9989945
 
 interrupted = False
 while not interrupted:
 	try:
 		update()
 
-		delay = 60 - time() % 60
+		delay = (minute - time() % minute) * slowpoke_k
 		if delay > 0:
 			log("Ожидание %.3f секунды", delay, style='0;32')
 			sleep(delay)
