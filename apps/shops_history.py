@@ -66,7 +66,7 @@ def prepare_data(history, new_players, new_items, new_deals, deals_ids):
 		if (item_id, data) not in items:
 			title, icon_image = deal['item'], deal['icon_image']
 			id_with_data = data and "%d:%d" % (item_id, data) or str(item_id)
-			log('Новый предмет: #%s %s http://ensemplix.mim.pw/item/%s', id_with_data, title, id_with_data)
+			log('\033[0;35mНовый предмет: \033[0;36m#%s %s\033[0m http://ensemplix.mim.pw/item/%s', id_with_data, title, id_with_data)
 
 			items.append((item_id, data))
 			new_items.append({'id': item_id, 'data': data, 'title': title, 'icon_image': icon_image})
@@ -120,11 +120,11 @@ while not interrupted:
 
 		delay = start_time + 60 - time()
 		if delay > 0:
-			log("Ожидание %.3f секунд", delay)
+			log("Ожидание %.3f секунды", delay, style='0;32')
 			sleep(delay)
 	except KeyboardInterrupt:
 		interrupted = True
-		log('Выполнение прервано пользователем :-)')
+		log('Выполнение прервано пользователем :-)', style='0;31')
 
 
 api_connection.close()

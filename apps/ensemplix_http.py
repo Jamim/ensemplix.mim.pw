@@ -9,7 +9,7 @@ def get_connection():
 def get_data(connection, request):
 	start_time = time()
 
-	log('Запрос к API: %s', request)
+	log('Запрос к API: \033[0;33m%s\033[0m', request)
 
 	connection.request('GET', '/v2/%s' % (request,))
 	response = connection.getresponse()

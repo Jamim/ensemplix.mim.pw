@@ -13,4 +13,4 @@ def insert_deals(cursor, servers, players, new_deals):
 	cursor.executemany("INSERT INTO shops_history VALUES (%(id)s, %(created)s, %(server_id)s, %(item_id)s, "
 		"%(amount)s, %(price)s, %(operation)s, %(client)s, %(owner)s, %(x)s, %(y)s, %(z)s, %(data)s);", new_deals)
 
-	log('Добавлено сделок: %d', len(new_deals))
+	log('Добавлено сделок: \033[0;36m%d', len(new_deals), style='0;35')
