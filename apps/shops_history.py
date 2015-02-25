@@ -114,11 +114,9 @@ def update():
 interrupted = False
 while not interrupted:
 	try:
-		start_time = time()
-
 		update()
 
-		delay = start_time + 60 - time()
+		delay = 60 - time() % 60
 		if delay > 0:
 			log("Ожидание %.3f секунды", delay, style='0;32')
 			sleep(delay)
