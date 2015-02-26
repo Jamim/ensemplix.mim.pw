@@ -20,7 +20,7 @@ CREATE TEMP TABLE last_attestation AS
 
 SELECT
 	owners.player AS owner, 1.*price/amount AS single_price, amount, price,
-	history.id, history.created, COALESCE(attestation.reason_id, 1) AS reason_id, reason.reason,
+	history.id, history.created, attestation.created AS attestation_time, COALESCE(attestation.reason_id, 1) AS reason_id, reason.reason,
 	x, y, z
 FROM shops_history AS history
 	JOIN last_deals ON last_deals.id = history.id

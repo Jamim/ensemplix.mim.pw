@@ -29,6 +29,9 @@ ${make_shop_row(shop)}\
 										<span class="small text-muted">${'%.1f' % (shop.warp.distance,)} метра</span>
 									</td>
 									<td>
+										% if shop.reason_id > 1:
+										<span class="label label-${shop.reason_id == 5 and 'primary' or shop.reason_id == 7 and 'danger' or 'warning'}" title="${strftime('%Y.%m.%d %H:%M:%S', localtime(shop.attestation_time))}">${shop.reason}</span><br />
+										% endif
 										<a class="label label-info" href="http://webapi.ensemplix.ru/#${shop.owner}">${shop.owner}</a><br />
 										<span class="small text-muted">${shop.coords}</span>
 									</td>

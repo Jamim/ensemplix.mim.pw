@@ -117,10 +117,13 @@ class Shop:
 		self.price        = shop[3]
 		self.deal_id      = shop[4]
 		self.deal_time    = shop[5]
-		self.attestation  = shop[6]
-		self.reason       = shop[7]
-		self.coords       = '%d,%d,%d' % coords
-		self.warp         = get_warp(server, coords)
+
+		self.attestation_time = shop[6]
+		self.reason_id        = shop[7]
+		self.reason           = shop[8]
+
+		self.coords = '%d,%d,%d' % coords
+		self.warp   = get_warp(server, coords)
 
 def shops_history_last(request):
 	start_time = time()
