@@ -26,15 +26,20 @@ else:
 	rows = cursor.fetchall()
 	existed_deals_ids = {id for id, in rows}
 
+servers = {}
 cursor.execute("SELECT world, id FROM servers;")
 rows = cursor.fetchall()
-servers = dict((world, id) for world, id in rows)
+for world, id in rows:
+	servers[world] = id
+	servers[id] = world
 
-players = {}
+cursor.execute("SELECT * FROM attestation_reasons;")
+rows = cursor.fetchall()
+reasons = dict((id, reason) for id, reason in rows)
+
 cursor.execute("SELECT lower(player), id FROM players;")
 rows = cursor.fetchall()
-for player, id in rows:
-	players[player] = id
+players = dict((player, id) for player, id in rows)
 
 cursor.execute("SELECT id, data FROM items;")
 items = cursor.fetchall()
@@ -49,6 +54,18 @@ def get_history(offset):
 	history_data = ensemplix_http.get_data(api_connection, request)
 	history = history_data and history_data['history']
 	return history
+
+def get_blocks_history(world, x, y, z):
+	global api_connection
+
+	request = 'blocks/location?world=%s&x=%d&y=%d&z=%d' % (world, x, y, z)
+	blocks_data = ensemplix_http.get_data(api_connection, request)
+	if blocks_data:
+		return blocks_data['blocks']
+	else:
+		api_connection.close()
+		api_connection = ensemplix_http.get_connection()
+		return None
 
 def check_players(new_players, *players_for_check):
 	for player in players_for_check:
@@ -76,7 +93,7 @@ def prepare_data(history, new_players, new_items, new_deals, deals_ids):
 			new_deals.append(deal)
 			deals_ids.add(deal_id)
 
-def update():
+def update_history():
 	global max_deal_id, existed_deals_ids
 	new_players, new_items, new_deals, deals_ids = [], [], [], existed_deals_ids
 
@@ -109,6 +126,43 @@ def update():
 	cursor.close()
 	sql_connection.commit()
 	existed_deals_ids.clear()
+
+
+def shops_attestation():
+	cursor = sql_connection.cursor()
+
+	cursor.execute('SELECT * FROM shops_for_attestation();')
+	shops_for_attestation = cursor.fetchall()
+
+	count = len(shops_for_attestation)
+	index = 0
+
+	for shop in shops_for_attestation:
+		world = servers[shop[2]]
+		x, y, z = shop[3:]
+
+		reason_id = 1
+		blocks = get_blocks_history(world, x, y, z)
+		if blocks:
+			last_block = blocks[0]
+			reason_id = last_block['created'] < shop[1] and 1 or last_block['type'] and last_block['block'] == 68 and 5 or 7
+
+		attestation_time = reason_id == 1 and time() or last_block['created']
+		cursor.execute('INSERT INTO shops_attestation (created, deal_id, player_id, reason_id) VALUES (%s, %s, 0, %s);', (attestation_time, shop[0], reason_id))
+		sql_connection.commit()
+
+		index += 1
+		reason_color = reason_id == 1 and '0;32' or reason_id == 5 and '0;34' or '0;31'
+		reason = reasons[reason_id]
+		log('Проверен магазин (%d из %d): \033[0;36m%s %d,%d,%d \033[0;35m— \033[%sm%s', index, count, world, x, y, z, reason_color, reason, style='0;35')
+
+	cursor.close()
+
+
+def update():
+	update_history()
+	shops_attestation()
+
 
 minute = 60
 slowpoke_k = 0.9989945

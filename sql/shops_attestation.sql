@@ -1,9 +1,9 @@
 CREATE TABLE shops_attestation (
 	id		SERIAL UNIQUE NOT NULL PRIMARY KEY,
-	created		SERIAL NOT NULL,
-	deal_id		SERIAL NOT NULL,
-	player_id	SERIAL NOT NULL,
-	reason_id	SERIAL NOT NULL,
+	created		SERIAL  NOT NULL,
+	deal_id		SERIAL  NOT NULL,
+	player_id	INTEGER NOT NULL,
+	reason_id	SERIAL  NOT NULL,
 	proofpic	TEXT
 );
 
