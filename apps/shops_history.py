@@ -7,7 +7,7 @@ from sys import argv
 from time import time, sleep
 import psycopg2
 
-api_connection = ensemplix_http.get_connection()
+ensemplix_http.init_connection()
 
 password = argv[1]
 sql_connection = psycopg2.connect("dbname='ensemplix' user='ensemplix' host='localhost' password='%s'" % (password,))
@@ -51,21 +51,15 @@ del cursor
 
 def get_history(offset):
 	request = offset and 'shops?offset=%d' % (offset,) or 'shops'
-	history_data = ensemplix_http.get_data(api_connection, request)
+	history_data = ensemplix_http.get_data(request)
 	history = history_data and history_data['history']
 	return history
 
 def get_blocks_history(world, x, y, z):
-	global api_connection
-
 	request = 'blocks/location?world=%s&x=%d&y=%d&z=%d' % (world, x, y, z)
-	blocks_data = ensemplix_http.get_data(api_connection, request)
-	if blocks_data:
-		return blocks_data['blocks']
-	else:
-		api_connection.close()
-		api_connection = ensemplix_http.get_connection()
-		return None
+	blocks_data = ensemplix_http.get_data(request)
+	blocks = blocks_data and blocks_data['blocks']
+	return blocks
 
 def check_players(new_players, *players_for_check):
 	for player in players_for_check:
@@ -119,8 +113,12 @@ def update_history():
 
 	cursor = sql_connection.cursor()
 
-	ensemplix_players.insert_players(api_connection, cursor, players, new_players)
+	ensemplix_players.insert_players(cursor, players, new_players)
+	sql_connection.commit()
+
 	ensemplix_items.insert_items(cursor, new_items)
+	sql_connection.commit()
+
 	ensemplix_deals.insert_deals(cursor, servers, players, new_deals)
 
 	cursor.close()
@@ -181,10 +179,10 @@ while not interrupted:
 		log('Выполнение прервано пользователем :-)', style='0;31')
 
 
-api_connection.close()
+ensemplix_http.close_connection()
 sql_connection.close()
 
-del api_connection, sql_connection
+del sql_connection
 
 
 exit(0)

@@ -3,9 +3,9 @@
 from sys import argv
 import json, psycopg2, ensemplix_http
 
-api_connection = ensemplix_http.get_connection()
-servers = ensemplix_http.get_data(api_connection, 'server/game/')
-api_connection.close()
+ensemplix_http.init_connection()
+servers = ensemplix_http.get_data('server/game/')
+ensemplix_http.close_connection()
 
 password = argv[1]
 sql_connection = psycopg2.connect("dbname='ensemplix' user='ensemplix' host='localhost' password='%s'" % (password,))
