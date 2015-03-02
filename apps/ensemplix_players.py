@@ -1,7 +1,7 @@
 import ensemplix_http
 from ensemplix_log import log
 
-players_ignore_list = ['nike_', 'm4111']
+players_ignore_list = ['nike_', 'm4111', 'lixpsx']
 
 def insert_players(cursor, players, new_players):
 	if not new_players:
