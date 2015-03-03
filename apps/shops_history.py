@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import ensemplix_http, ensemplix_players, ensemplix_items, ensemplix_deals
+import ensemplix_http, ensemplix_players, ensemplix_items, ensemplix_deals, ensemplix_warps
 from ensemplix_log import log
 
 from sys import argv
@@ -32,6 +32,7 @@ rows = cursor.fetchall()
 for world, id in rows:
 	servers[world] = id
 	servers[id] = world
+accepted_servers = (3, 1, 11)
 
 cursor.execute("SELECT * FROM attestation_reasons;")
 rows = cursor.fetchall()
@@ -44,6 +45,11 @@ players = dict((player, id) for player, id in rows)
 cursor.execute("SELECT id, data FROM items;")
 items = cursor.fetchall()
 
+warps = dict((server_id, set()) for server_id in accepted_servers)
+cursor.execute("SELECT server_id, lower(warp) FROM warps;")
+rows = cursor.fetchall()
+for server_id, warp in rows:
+	warps[server_id].add(warp)
 
 cursor.close()
 del cursor
@@ -60,6 +66,12 @@ def get_blocks_history(world, x, y, z):
 	blocks_data = ensemplix_http.get_data(request)
 	blocks = blocks_data and blocks_data['blocks']
 	return blocks
+
+def get_warps(world, offset):
+	request = 'warps?world=%s%s' % (world, offset and '&offset=%d' % (offset,) or '')
+	warps_data = ensemplix_http.get_data(request)
+	warps, count = warps_data['warps'], warps_data['count']
+	return warps, count
 
 def check_players(new_players, *players_for_check):
 	for player in players_for_check:
@@ -156,9 +168,55 @@ def shops_attestation():
 
 	cursor.close()
 
+def update_warps():
+	for server_id in accepted_servers:
+		world = servers[server_id]
+		warps_set = warps[server_id]
+
+		new_warps   = []
+		new_players = []
+
+		offset = 0
+		count  = 1
+
+		while offset < count:
+			fetched_warps, count = get_warps(world, offset)
+
+			for warp in fetched_warps:
+				warp_title = warp['warp'].lower()
+				if warp_title in warps_set:
+					continue
+
+				check_players(new_players, warp['owner'].lower())
+				new_warps.append(warp)
+				warps_set.add(warp_title)
+
+			offset += 100
+
+		cursor = sql_connection.cursor()
+
+		ensemplix_players.insert_players(cursor, players, new_players)
+		sql_connection.commit()
+
+		ensemplix_warps.insert_warps(cursor, server_id, world, players, new_warps)
+
+		cursor.close()
+		sql_connection.commit()
+
+
+warps_update_interval = 1800
+next_warps_update_time = 0
 
 def update():
+	global next_warps_update_time
+
 	update_history()
+
+	current_time = time()
+	if next_warps_update_time < current_time:
+		update_warps()
+		next_warps_update_time = current_time - current_time % warps_update_interval + warps_update_interval
+
 	shops_attestation()
 
 
