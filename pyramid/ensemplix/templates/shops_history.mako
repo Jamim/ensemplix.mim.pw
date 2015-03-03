@@ -2,11 +2,12 @@
 <%! from time import time, localtime, strftime %>\
 <%def name="make_history_row(deal)">\
 					<tr>
-						% if not server:
 						<td>
-							<a class="label label-default" href="/${deal.server}/shops/history/last">${deal.server}</a>
+							% if not server:
+							<a class="label label-default" href="/${deal.server}/shops/history/last">${deal.server}</a><br />
+							% endif
+							<span class="small text-muted">${deal.coords}</span>
 						</td>
-						% endif
 						<td>
 							<span class="label label-warning">${deal.warp.title}</span><br />
 							<span class="small text-muted">${'%.1f' % (deal.warp.distance,)} метра</span>
@@ -14,19 +15,18 @@
 						<td>
 							<a class="label label-success" href="http://webapi.ensemplix.ru/#${deal.client}">${deal.client}</a>
 							${deal.operation and 'продал' or 'купил у'}
-							<a class="label label-info" href="http://webapi.ensemplix.ru/#${deal.owner}">${deal.owner}</a>
+							<a class="label label-info" href="http://webapi.ensemplix.ru/#${deal.owner}">${deal.owner}</a><br />
+							<span class="small text-muted">${strftime('%Y.%m.%d %H:%M:%S', localtime(deal.time))}</span>
 						</td>
 						<td>
 							<a href="/${server or deal.server}/item/${deal.item.id_with_data}">
 								<img src="${deal.item.icon_image}" alt="${deal.item.title}"/>
 							</a>
 						</td>
-						<td title="Сделка ${deal.id}">
+						<td>
 							<a class="label label-primary" href="/${server or deal.server}/item/${deal.item.id_with_data}">${deal.item.id_with_title}</a><br />
-							${deal.amount} шт. за <b>${deal.price}&nbsp;койн${get_termination(deal.price, ('', 'а', 'ов'))}</b>
+							<span title="Сделка ${deal.id}">${deal.amount} шт. за <b>${deal.price}&nbsp;койн${get_termination(deal.price, ('', 'а', 'ов'))}</b></span>
 						</td>
-						<td>${deal.coords}</td>
-						<td>${strftime('%Y.%m.%d %H:%M:%S', localtime(deal.time))}</td>
 					</tr>
 </%def>\
 <!DOCTYPE html>
@@ -45,14 +45,10 @@
 			<table class="table table-striped">
 				<thead>
 					<tr>
-						% if not server:
-						<th>Сервер</th>
-						% endif
+						<th>${server and 'Координаты' or 'Сервер'}</th>
 						<th>Варп</th>
 						<th>Операция</th>
 						<th colspan="2">Предмет</th>
-						<th>Координаты</th>
-						<th>Время</th>
 					</tr>
 				</thead>
 				<tbody>
