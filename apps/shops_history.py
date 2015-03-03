@@ -209,7 +209,9 @@ def update_warps():
 
 
 warps_update_interval = 1800
-next_warps_update_time = 0
+
+current_time = time()
+next_warps_update_time = current_time - current_time % warps_update_interval + warps_update_interval
 
 def update():
 	global next_warps_update_time
