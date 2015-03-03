@@ -12,7 +12,7 @@ def close_connection():
 		api_connection.close()
 
 last_request_time = 0
-min_request_interval = 1
+min_request_interval = 0.333
 
 def get_data(request):
 	global last_request_time
