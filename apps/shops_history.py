@@ -138,6 +138,10 @@ def update_history():
 	existed_deals_ids.clear()
 
 
+REASON_OK            = 1
+REASON_TERMS_CHANGED = 6
+REASON_CLOSED        = 8
+
 def shops_attestation():
 	cursor = sql_connection.cursor()
 
@@ -155,14 +159,14 @@ def shops_attestation():
 		blocks = get_blocks_history(world, x, y, z)
 		if blocks:
 			last_block = blocks[0]
-			reason_id = last_block['created'] < shop[1] and 1 or last_block['type'] and last_block['block'] == 68 and 5 or 7
+			reason_id = last_block['created'] < shop[1] and REASON_OK or last_block['type'] and last_block['block'] == 68 and REASON_TERMS_CHANGED or REASON_CLOSED
 
-		attestation_time = reason_id == 1 and time() or last_block['created']
+		attestation_time = reason_id == REASON_OK and time() or last_block['created']
 		cursor.execute('INSERT INTO shops_attestation (created, deal_id, player_id, reason_id) VALUES (%s, %s, 0, %s);', (attestation_time, shop[0], reason_id))
 		sql_connection.commit()
 
 		index += 1
-		reason_color = reason_id == 1 and '0;32' or reason_id == 5 and '0;34' or '0;31'
+		reason_color = reason_id == REASON_OK and '0;32' or reason_id == REASON_TERMS_CHANGED and '0;34' or '0;31'
 		reason = reasons[reason_id]
 		log('Проверен магазин (%d из %d): \033[0;36m%s %d,%d,%d \033[0;35m— \033[%sm%s', index, count, world, x, y, z, reason_color, reason, style='0;35')
 
