@@ -21,7 +21,7 @@
 								<img src="${deal.item.icon_image}" alt="${deal.item.title}"/>
 							</a>
 						</td>
-						<td>
+						<td title="Сделка ${deal.id}">
 							<a class="label label-primary" href="/${server or deal.server}/item/${deal.item.id_with_data}">${deal.item.id_with_title}</a><br />
 							${deal.amount} шт. за <b>${deal.price}&nbsp;койн${get_termination(deal.price, ('', 'а', 'ов'))}</b>
 						</td>

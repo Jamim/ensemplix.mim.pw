@@ -38,7 +38,7 @@ ${make_shop_row(shop)}\
 									<td>
 										${make_price(shop.single_price)}
 									</td>
-									<td>
+									<td title="Сделка ${shop.deal_id}">
 										${shop.amount} шт. за <b>${shop.price}&nbsp;койн${get_termination(shop.price, ('', 'а', 'ов'))}</b><br />
 										<span class="small text-muted">${strftime('%Y.%m.%d %H:%M:%S', localtime(shop.deal_time))}</span>
 									</td>
