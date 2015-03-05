@@ -12,14 +12,17 @@ BEGIN
 	week_ago = CAST(EXTRACT(epoch FROM now() - interval '1 week') AS INTEGER);
 
 
-	CREATE TEMP TABLE last_deals ON COMMIT DROP AS
-		SELECT max(id) AS id, server_id, x, y, z
-		FROM shops_history AS history
-		WHERE history.created > week_ago
-		GROUP BY server_id, x, y, z, item_id, data, amount, price;
+	CREATE TEMP TABLE last_deals (
+		id INTEGER NOT NULL PRIMARY KEY,
+		server_id INTEGER NOT NULL,
+		x INTEGER NOT NULL,
+		y INTEGER NOT NULL,
+		z INTEGER NOT NULL
+	) ON COMMIT DROP;
 
-	CREATE INDEX last_deals_id_idx            ON last_deals (id);
 	CREATE INDEX last_deals_server_id_xyz_idx ON last_deals (server_id, x, y, z);
+
+	INSERT INTO last_deals SELECT * FROM last_unique_deals(week_ago);
 
 
 	FOR deal IN SELECT * FROM last_deals LOOP
