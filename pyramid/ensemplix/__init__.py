@@ -244,12 +244,9 @@ def item_view(request):
 
 def items_view(request):
 	start_time = time()
-	week_ago = start_time - week
-	sql = load_sql('items_stats.sql')
-	request_params = {'created': week_ago}
 
 	cursor = sql_connection.cursor()
-	cursor.execute(sql, request_params)
+	cursor.execute("SELECT * FROM items_stats();")
 	items = [get_item_with_prices(item) for item in cursor.fetchall()]
 
 	template = Template(filename=app_dir + 'templates/items.mako')
