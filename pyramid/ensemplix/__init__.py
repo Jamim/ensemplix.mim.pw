@@ -248,6 +248,7 @@ def items_view(request):
 	cursor = sql_connection.cursor()
 	cursor.execute("SELECT * FROM items_stats();")
 	items = [get_item_with_prices(item) for item in cursor.fetchall()]
+	cursor.close()
 
 	template = Template(filename=app_dir + 'templates/items.mako')
 	result = template.render(start_time=start_time, items=items)
