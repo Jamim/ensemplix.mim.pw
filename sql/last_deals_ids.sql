@@ -6,7 +6,7 @@ BEGIN
 		SELECT max(shops_history.id) AS id
 		FROM shops_history
 		WHERE created > min_time
-		GROUP BY server_id, x, y, z;
+		GROUP BY server_id, x, y, z, operation;
 END;
 
 $$ LANGUAGE plpgsql;
