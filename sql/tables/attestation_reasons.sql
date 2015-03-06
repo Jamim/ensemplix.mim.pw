@@ -4,7 +4,7 @@ CREATE TABLE attestation_reasons (
 );
 
 INSERT INTO attestation_reasons VALUES (1, 'Табличка цела');
-INSERT INTO attestation_reasons VALUES (2, 'Нет места');
+INSERT INTO attestation_reasons VALUES (2, 'Закончилось место');
 INSERT INTO attestation_reasons VALUES (3, 'Недостаточно средств');
 INSERT INTO attestation_reasons VALUES (4, 'Товар закончился');
 INSERT INTO attestation_reasons VALUES (5, 'Покупка отключена');

@@ -7,7 +7,7 @@ DECLARE
 	last_deal_id INTEGER;
 	last RECORD;
 	deal RECORD;
-	
+
 BEGIN
 	week_ago = CAST(EXTRACT(epoch FROM now() - interval '1 week') AS INTEGER);
 
