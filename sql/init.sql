@@ -23,6 +23,7 @@
 \i functions/shop_attestation.sql
 \i functions/shops_for_attestation.sql
 \i functions/shops_manual_attestation.sql
+\i functions/item_stats.sql
 \i functions/items_stats.sql
 
 

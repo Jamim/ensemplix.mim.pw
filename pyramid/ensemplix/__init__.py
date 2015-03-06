@@ -184,7 +184,8 @@ def get_item_with_prices(values):
 	item.set_prices(*values[4:])
 	return item
 
-def get_item_stats_data(cursor, server_id, item, stats_sql, where_to_buy_sql, where_to_sell_sql, start_time):
+STATS_SQL = 'SELECT * FROM item_stats(%(server_id)s, %(item_id)s, %(data)s, %(created)s);'
+def get_item_stats_data(cursor, server_id, item, where_to_buy_sql, where_to_sell_sql, start_time):
 	day_ago  = start_time - day
 	week_ago = start_time - week
 
@@ -195,10 +196,10 @@ def get_item_stats_data(cursor, server_id, item, stats_sql, where_to_buy_sql, wh
 	cursor.execute(where_to_sell_sql, request_params)
 	where_to_sell = [Shop(server_id, shop) for shop in cursor.fetchall()]
 
-	cursor.execute(stats_sql, request_params)
+	cursor.execute(STATS_SQL, request_params)
 	weekly_stats = cursor.fetchall()
 	request_params['created'] = day_ago
-	cursor.execute(stats_sql, request_params)
+	cursor.execute(STATS_SQL, request_params)
 	daily_stats = cursor.fetchall()
 
 	return ItemStats(where_to_buy, where_to_sell, daily_stats, weekly_stats)
@@ -207,7 +208,6 @@ def get_item_stats_data(cursor, server_id, item, stats_sql, where_to_buy_sql, wh
 def item_view(request):
 	start_time = time()
 	shops_sql = load_sql('item_shops.sql')
-	stats_sql = load_sql('item_stats.sql')
 
 	where_to_buy_sql  = shops_sql.replace('[NOT]', 'NOT ').replace('[DESC]', '')
 	where_to_sell_sql = shops_sql.replace('[NOT]', '')    .replace('[DESC]', ' DESC')
@@ -227,12 +227,12 @@ def item_view(request):
 	template = Template(filename=app_dir + 'templates/item.mako')
 
 	if server:
-		stats = get_item_stats_data(cursor, server_id, item, stats_sql, where_to_buy_sql, where_to_sell_sql, start_time)
+		stats = get_item_stats_data(cursor, server_id, item, where_to_buy_sql, where_to_sell_sql, start_time)
 		item.set_stats({server: stats})
 	else:
 		stats = {}
 		for server_id in servers_ids:
-			stats[servers[server_id]] = get_item_stats_data(cursor, server_id, item, stats_sql, where_to_buy_sql, where_to_sell_sql, start_time)
+			stats[servers[server_id]] = get_item_stats_data(cursor, server_id, item, where_to_buy_sql, where_to_sell_sql, start_time)
 		item.set_stats(stats)
 
 	cursor.close()
