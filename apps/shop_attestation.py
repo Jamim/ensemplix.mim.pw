@@ -9,7 +9,7 @@ sql_connection = psycopg2.connect("dbname='ensemplix' user='ensemplix' host='loc
 cursor = sql_connection.cursor()
 
 if argv[2] == '--reasons':
-	cursor.execute('SELECT * FROM attestation_reasons;')
+	cursor.execute('SELECT * FROM attestation_reasons ORDER BY id;')
 	rows = cursor.fetchall()
 	for id, reason in rows:
 		print(id, reason)
