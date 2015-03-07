@@ -20,7 +20,7 @@
 						</td>
 						<td>
 							<a href="/${server or deal.server}/item/${deal.item.id_with_data}">
-								<img src="${deal.item.icon_image}" alt="${deal.item.title}"/>
+								<img src="${deal.item.icon_image}" alt="" />
 							</a>
 						</td>
 						<td>

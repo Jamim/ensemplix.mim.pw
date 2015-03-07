@@ -100,7 +100,7 @@ ${'{0:.6f}'.format(price).rstrip('0').rstrip('.')}<br /><span class="small text-
 	<body role="document">
 		<div class="container theme-showcase" role="main">
 			<div class="page-header">
-				<h2><img src="${item.icon_image}" alt="${item.title}" /> ${item.id_with_title}</h2>
+				<h2><img src="${item.icon_image}" alt="" /> ${item.id_with_title}</h2>
 			</div>
 % for server in (len(item.stats) == 3 and ('Davids', 'Sandbox', 'Amber') or item.stats):
 <% stats = item.stats[server] %>\

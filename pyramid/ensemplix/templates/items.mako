@@ -3,7 +3,7 @@
 <%def name="make_items_row(item)">\
 					<tr>
 						<td>
-							<a href="/item/${item.id_with_data}"><img src="${item.icon_image}" alt="${item.title}"/></a>
+							<a href="/item/${item.id_with_data}"><img src="${item.icon_image}" alt="" /></a>
 							<a class="label label-primary" href="/item/${item.id_with_data}">${item.id_with_title}</a>
 						</td>
 ${make_price_td('Davids',  item.id_with_data, item.davids_buy_price,  item.davids_sell_price)}\
