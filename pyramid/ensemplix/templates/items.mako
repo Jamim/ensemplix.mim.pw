@@ -14,11 +14,10 @@ ${make_price_td('Amber',   item.id_with_data, item.amber_buy_price,   item.amber
 <%def name="make_price_td(server, id_with_data, buy, sell)">\
 						<td>
 							% if buy:
-							<a class="label label-warning" href="/${server}/item/${id_with_data}" title="Покупка из магазина на ${server}">${'{0:.6f}'.format(buy).rstrip('0').rstrip('.')}</a><br />
-							% else:
-							<br />
+							<a class="label label-warning" href="/${server}/item/${id_with_data}" title="Покупка из магазина на ${server}">${'{0:.6f}'.format(buy).rstrip('0').rstrip('.')}</a>
 							% endif
 							%if sell:
+							<br />
 							<a class="label label-${buy and sell and buy < sell and 'success' or 'danger'}" href="/${server}/item/${id_with_data}" title="Продажа в магазин на ${server}">${'{0:.6f}'.format(sell).rstrip('0').rstrip('.')}</a>
 							% endif
 						</td>
