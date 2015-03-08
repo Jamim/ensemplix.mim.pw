@@ -83,14 +83,6 @@ def get_warp(server, coords):
 
 	return warp
 
-def load_file(filename):
-	with open(app_dir + filename, encoding='utf-8') as input:
-		data = input.read()
-	return data
-
-def load_sql(filename):
-	return load_file('sql/' + filename)
-
 class Deal:
 	def __init__(self, server, deal):
 		coords = deal[11:14]
@@ -125,18 +117,19 @@ class Shop:
 		self.coords = '%d,%d,%d' % coords
 		self.warp   = get_warp(server, coords)
 
+SHOPS_HISTORY_LAST_SQL           = 'SELECT * FROM shops_history_last();'
+SHOPS_HISTORY_LAST_BY_SERVER_SQL = 'SELECT * FROM shops_history_last(%(server_id)s);'
 def shops_history_last(request):
 	start_time = time()
-	sql = load_sql('shops_history_last.sql')
 
 	server = 'server' in request.matchdict and request.matchdict['server'] or False
 	server_id = server and servers[server]
 
-	sql = sql.replace('[server]', not server and ', servers.name' or '').replace('[JOIN]', not server and '\tJOIN servers ON servers.id = server_id\n' or '').replace('[WHERE]', server and 'WHERE server_id=%(server_id)s ' or '')
+	request = server and SHOPS_HISTORY_LAST_BY_SERVER_SQL or SHOPS_HISTORY_LAST_SQL
 	request_params = {'server_id': server_id}
 
 	cursor = sql_connection.cursor()
-	cursor.execute(sql, request_params)
+	cursor.execute(request, request_params)
 	history = [Deal(server, deal) for deal in cursor.fetchall()]
 	cursor.close()
 

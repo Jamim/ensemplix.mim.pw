@@ -29,6 +29,9 @@
 \i functions/shops_for_attestation.sql
 \i functions/shops_manual_attestation.sql
 
+\i functions/shops_history_last.sql
+\i functions/shops_history_last_by_server.sql
+
 \i functions/item_stats.sql
 \i functions/item_shops_buy.sql
 \i functions/item_shops_sell.sql
