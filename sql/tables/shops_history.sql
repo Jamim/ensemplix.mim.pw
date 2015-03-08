@@ -22,3 +22,5 @@ CREATE INDEX shops_history_from_id_idx   ON shops_history (from_id);
 CREATE INDEX shops_history_to_id_idx     ON shops_history (to_id);
 CREATE INDEX shops_history_xyz_idx       ON shops_history (x, y, z);
 CREATE INDEX shops_history_data_idx      ON shops_history (data);
+
+CREATE INDEX shops_history_item_deals_idx ON shops_history (server_id, item_id, data, operation);
