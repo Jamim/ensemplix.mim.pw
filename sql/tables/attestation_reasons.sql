@@ -11,3 +11,4 @@ INSERT INTO attestation_reasons VALUES (5, 'Покупка отключена');
 INSERT INTO attestation_reasons VALUES (6, 'Изменились условия');
 INSERT INTO attestation_reasons VALUES (7, 'Изменился предмет');
 INSERT INTO attestation_reasons VALUES (8, 'Магазин закрыт');
+INSERT INTO attestation_reasons VALUES (9, 'Нет прохода к магазину');

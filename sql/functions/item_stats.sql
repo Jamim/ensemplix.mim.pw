@@ -11,9 +11,9 @@ BEGIN
 			min(1.*price/amount), 1.*sum(price)/sum(amount), max(1.*price/amount)
 		FROM shops_history AS history
 		WHERE
-			server_id = target_server_id
+			server_id   = target_server_id
 			AND item_id = target_item_id
-			AND data = target_data
+			AND data    = target_data
 			AND created > min_time
 		GROUP BY history.operation ORDER BY history.operation;
 END;
