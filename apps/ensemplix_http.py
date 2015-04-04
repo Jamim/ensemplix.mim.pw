@@ -1,4 +1,4 @@
-from http.client import HTTPConnection, ResponseNotReady
+from http.client import HTTPConnection, ResponseNotReady, BadStatusLine
 from ensemplix_log import log
 from time import time, sleep
 import json
@@ -12,23 +12,36 @@ def close_connection():
 		api_connection.close()
 
 last_request_time = 0
-min_request_interval = 0.333
+MIN_REQUEST_INTERVAL = 0.333
+OSERROR_DELAY = 60
 
 def get_data(request):
 	global last_request_time
 
-	delay = min_request_interval - (time() - last_request_time)
+	delay = MIN_REQUEST_INTERVAL - (time() - last_request_time)
 	if delay > 0:
 		sleep(delay)
 
 	log('Запрос к API: \033[0;33m%s\033[0m', request)
 
 	start_time = time()
-	api_connection.request('GET', '/v2/%s' % (request,))
-	response = api_connection.getresponse()
+
+	try:
+		api_connection.request('GET', '/v2/%s' % (request,))
+	except OSError as error:
+		log('Произошла системная ошибка: \033[0;36m%s', error, style='0;31')
+		sleep(OSERROR_DELAY)
+		init_connection()
+		return get_data(request)
+
+	try:
+		response = api_connection.getresponse()
+	except BadStatusLine:
+		response = None
+
 	last_request_time = time()
 
-	if response.status != 200:
+	if response is None or response.status != 200:
 		init_connection()
 		return None
 
