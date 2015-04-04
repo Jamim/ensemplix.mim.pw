@@ -70,6 +70,10 @@ def get_blocks_history(world, x, y, z):
 def get_warps(world, offset):
 	request = 'warps?world=%s%s' % (world, offset and '&offset=%d' % (offset,) or '')
 	warps_data = ensemplix_http.get_data(request)
+
+	if warps_data is None:
+		return [], 0
+
 	warps, count = warps_data['warps'], warps_data['count']
 	return warps, count
 
