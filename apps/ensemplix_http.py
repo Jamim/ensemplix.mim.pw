@@ -3,9 +3,11 @@ from ensemplix_log import log
 from time import time, sleep
 import json
 
+CONNECTION_TIMEOUT = 15
+
 def init_connection():
 	global api_connection
-	api_connection = HTTPConnection('api.ensemplix.ru')
+	api_connection = HTTPConnection('api.ensemplix.ru', timeout=CONNECTION_TIMEOUT)
 
 def close_connection():
 	if api_connection:
