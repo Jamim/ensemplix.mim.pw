@@ -113,6 +113,9 @@ def update_history():
 
 	while not complete:
 		history = get_history(offset)
+		if history is None:
+			continue
+
 		prepare_data(history, new_players, new_items, new_deals, deals_ids)
 		new_max_deal_id = max(new_max_deal_id, history[0]['id'])
 
