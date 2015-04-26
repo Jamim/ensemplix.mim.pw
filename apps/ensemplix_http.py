@@ -1,6 +1,7 @@
 from http.client import HTTPConnection, ResponseNotReady, BadStatusLine
 from ensemplix_log import log
 from time import time, sleep
+from socket import timeout
 import json
 
 CONNECTION_TIMEOUT = 15
@@ -39,6 +40,8 @@ def get_data(request):
 	try:
 		response = api_connection.getresponse()
 	except BadStatusLine:
+		response = None
+	except timeout:
 		response = None
 
 	last_request_time = time()
