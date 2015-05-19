@@ -25,8 +25,10 @@ ${make_shop_row(shop)}\
 <%def name="make_shop_row(shop)">\
 								<tr>
 									<td>
+										% if shop.warp:
 										<span class="label label-warning">${shop.warp.title}</span><br />
 										<span class="small text-muted">${'%.1f' % (shop.warp.distance,)} метра</span>
+										% endif
 									</td>
 									<td>
 										% if shop.reason_id > 1:

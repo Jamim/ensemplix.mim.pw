@@ -70,18 +70,19 @@ def get_warp(server, coords):
 		return nearest_warps[server][coords]
 
 	server_warps = warps[server]
-	nearest_warp = server_warps[0]
-	min_distance = nearest_warp.get_distance(*coords)
-	for warp in server_warps[1:]:
-		distance = warp.get_distance(*coords)
-		if distance < min_distance:
-			min_distance = distance
-			nearest_warp = warp
+	if server_warps:
+		nearest_warp = server_warps[0]
+		min_distance = nearest_warp.get_distance(*coords)
+		for warp in server_warps[1:]:
+			distance = warp.get_distance(*coords)
+			if distance < min_distance:
+				min_distance = distance
+				nearest_warp = warp
 
-	warp = nearest_warp.clone(min_distance)
-	nearest_warps[server][coords] = warp
+		warp = nearest_warp.clone(min_distance)
+		nearest_warps[server][coords] = warp
 
-	return warp
+		return warp
 
 class Deal:
 	def __init__(self, server, deal):
