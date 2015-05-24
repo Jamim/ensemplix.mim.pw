@@ -46,7 +46,7 @@ cursor.execute("SELECT id, data FROM items;")
 items = cursor.fetchall()
 
 warps = dict((server_id, set()) for server_id in accepted_servers)
-cursor.execute("SELECT server_id, lower(warp) FROM warps;")
+cursor.execute("SELECT server_id, lower(warp) FROM warps WHERE server_id IN %r;" % (accepted_servers,))
 rows = cursor.fetchall()
 for server_id, warp in rows:
 	warps[server_id].add(warp)
