@@ -32,7 +32,7 @@ rows = cursor.fetchall()
 for world, id in rows:
 	servers[world] = id
 	servers[id] = world
-accepted_servers = (3, 1, 11)
+accepted_servers = (1, 2, 3)
 
 cursor.execute("SELECT * FROM attestation_reasons;")
 rows = cursor.fetchall()

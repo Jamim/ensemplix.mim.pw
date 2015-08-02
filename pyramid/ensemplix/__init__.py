@@ -254,7 +254,7 @@ def get_servers():
 	global servers, servers_ids
 
 	cursor = sql_connection.cursor()
-	cursor.execute("SELECT id, name FROM servers WHERE name != 'Carnage';")
+	cursor.execute("SELECT id, name FROM servers WHERE id IN (1, 2, 3);")
 	servers, servers_ids = {}, []
 	for server_id, server_name in cursor.fetchall():
 		servers[server_id]   = server_name
