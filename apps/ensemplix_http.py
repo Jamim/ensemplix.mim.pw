@@ -50,7 +50,13 @@ def get_data(request):
 		init_connection()
 		return None
 
-	json_data = response.read().decode('utf-8')
+	try:
+		response_data = response.read()
+	except timeout:
+		init_connection()
+		return get_data(request)
+
+	json_data = response_data.decode('utf-8')
 	data = json.loads(json_data)
 
 	log('Запрос выполнен за %.3f секунды', last_request_time - start_time)
