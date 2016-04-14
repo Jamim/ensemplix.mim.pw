@@ -9,7 +9,7 @@
 							<span class="small text-muted">${deal.coords}</span>
 						</td>
 						<td>
-							% id deal.warp:
+							% if deal.warp:
 							<span class="label label-warning">${deal.warp.title}</span><br />
 							<span class="small text-muted">${'%.1f' % (deal.warp.distance,)} метра</span>
 							% endif

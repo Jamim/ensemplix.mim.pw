@@ -39,9 +39,7 @@ def get_data(request):
 
 	try:
 		response = api_connection.getresponse()
-	except BadStatusLine:
-		response = None
-	except timeout:
+	except (BadStatusLine, ConnectionError, timeout):
 		response = None
 
 	last_request_time = time()

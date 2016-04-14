@@ -1,5 +1,6 @@
 import ensemplix_http
 from ensemplix_log import log
+from urllib.parse import quote
 
 players_ignore_list = [
 	'nike_', 'm4111', 'lixpsx', 'capitan_blek1', 'ddaanniill55',
@@ -16,7 +17,7 @@ def insert_players(cursor, players, new_players):
 		if player in players_ignore_list:
 			continue
 
-		player_data = ensemplix_http.get_data('player/info/%s/' % (player,))
+		player_data = ensemplix_http.get_data('player/info/{}/'.format(quote(player)))
 		if player_data:
 			player_data = player_data[0]
 			log('Новый игрок: \033[0;36m%s', player_data['player'], style='0;35')

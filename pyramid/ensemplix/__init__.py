@@ -1,6 +1,8 @@
 from pyramid.config import Configurator
-from mako.template import Template
+from pyramid.httpexceptions import HTTPNotFound
 from pyramid.response import Response
+
+from mako.template import Template
 from time import time
 from math import sqrt
 
@@ -205,14 +207,19 @@ def item_view(request):
 	start_time = time()
 
 	params = request.matchdict
-	item_id = int(params['item_id'])
-	data   = 'data'   in params and int(params['data']) or 0
-	server = 'server' in params and params['server'] or False
-	server_id = server and servers[server]
+	item_id = params['item_id']
+	if not item_id.isdigit():
+		raise HTTPNotFound('Увы, предмет не найден :-/')
+	data = int(params.get('data', 0))
+	server = params.get('server')
+	server_id = servers.get(server)
 
 	cursor = sql_connection.cursor()
 	cursor.execute("SELECT title, icon_image FROM items WHERE id = %s AND data = %s;", (item_id, data))
 	row = cursor.fetchone()
+	if row is None:
+		raise HTTPNotFound('Увы, предмет не найден :-/')
+
 	item = Item(item_id, data, *row)
 
 	item_stats_by_server = {}

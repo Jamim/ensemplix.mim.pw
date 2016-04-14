@@ -103,6 +103,24 @@ def prepare_data(history, new_players, new_items, new_deals, deals_ids):
 			new_deals.append(deal)
 			deals_ids.add(deal_id)
 
+def save_data(new_players, new_items, new_deals):
+	cursor = sql_connection.cursor()
+
+	ensemplix_players.insert_players(cursor, players, new_players)
+	sql_connection.commit()
+
+	ensemplix_items.insert_items(cursor, new_items)
+	sql_connection.commit()
+
+	ensemplix_deals.insert_deals(cursor, servers, players, new_deals)
+
+	cursor.close()
+	sql_connection.commit()
+
+	new_players.clear()
+	new_items.clear()
+	new_deals.clear()
+
 def update_history():
 	global max_deal_id, existed_deals_ids
 	new_players, new_items, new_deals, deals_ids = [], [], [], existed_deals_ids
@@ -117,6 +135,8 @@ def update_history():
 			continue
 
 		prepare_data(history, new_players, new_items, new_deals, deals_ids)
+		if len(new_deals) > 9000:
+			save_data(new_players, new_items, new_deals)
 		new_max_deal_id = max(new_max_deal_id, history[0]['id'])
 
 		offset += 100
@@ -127,21 +147,8 @@ def update_history():
 
 		complete = start_id <= max_deal_id
 
-
 	max_deal_id = new_max_deal_id
-
-	cursor = sql_connection.cursor()
-
-	ensemplix_players.insert_players(cursor, players, new_players)
-	sql_connection.commit()
-
-	ensemplix_items.insert_items(cursor, new_items)
-	sql_connection.commit()
-
-	ensemplix_deals.insert_deals(cursor, servers, players, new_deals)
-
-	cursor.close()
-	sql_connection.commit()
+	save_data(new_players, new_items, new_deals)
 	existed_deals_ids.clear()
 
 
@@ -247,6 +254,7 @@ while not interrupted:
 			sleep(delay)
 	except KeyboardInterrupt:
 		interrupted = True
+		print('\r', end='')
 		log('Выполнение прервано пользователем :-)', style='0;31')
 
 
