@@ -6,7 +6,7 @@
 							<a href="/item/${item.id_with_data}"><img src="${item.icon_image}" alt="" /></a>
 							<a class="label label-primary" href="/item/${item.id_with_data}">${item.id_with_title}</a>
 						</td>
-${make_price_td('Davids',  item.id_with_data, item.davids_buy_price,  item.davids_sell_price)}\
+${make_price_td('Invice',  item.id_with_data, item.invice_buy_price,  item.invice_sell_price)}\
 ${make_price_td('Sandbox', item.id_with_data, item.sandbox_buy_price, item.sandbox_sell_price)}\
 ${make_price_td('Amber',   item.id_with_data, item.amber_buy_price,   item.amber_sell_price)}\
 					</tr>
@@ -39,7 +39,7 @@ ${make_price_td('Amber',   item.id_with_data, item.amber_buy_price,   item.amber
 				<thead>
 					<tr>
 						<th>Предмет</th>
-						<th>Davids</th>
+						<th>Invice</th>
 						<th>Sandbox</th>
 						<th>Amber</th>
 					</tr>

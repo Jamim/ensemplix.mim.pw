@@ -104,7 +104,7 @@ ${'{0:.6f}'.format(price).rstrip('0').rstrip('.')}<br /><span class="small text-
 			<div class="page-header">
 				<h2><img src="${item.icon_image}" alt="" /> ${item.id_with_title}</h2>
 			</div>
-% for server in (len(item.stats) == 3 and ('Davids', 'Sandbox', 'Amber') or item.stats):
+% for server in (len(item.stats) == 3 and ('Invice', 'Sandbox', 'Amber') or item.stats):
 <% stats = item.stats[server] %>\
 % if stats.where_to_buy or stats.where_to_sell:
 			<div class="page-header">

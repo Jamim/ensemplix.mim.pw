@@ -8,6 +8,7 @@ CREATE TABLE servers (
 	border		INTEGER,
 	world		TEXT		NOT NULL,
 	map		TEXT,
+	created		INTEGER,
 	server_version	TEXT		NOT NULL,
 	client_version	TEXT		NOT NULL
 );

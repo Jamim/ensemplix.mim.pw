@@ -1,7 +1,7 @@
 CREATE OR REPLACE FUNCTION items_stats()
 RETURNS TABLE(
 	id INTEGER, data INTEGER, title TEXT, icon_image TEXT,
-	davids_min_buy_price  DOUBLE PRECISION, davids_max_sell_price  DOUBLE PRECISION,
+	invice_min_buy_price  DOUBLE PRECISION, invice_max_sell_price  DOUBLE PRECISION,
 	sandbox_min_buy_price DOUBLE PRECISION, sandbox_max_sell_price DOUBLE PRECISION,
 	amber_min_buy_price   DOUBLE PRECISION, amber_max_sell_price   DOUBLE PRECISION
 ) AS $$
@@ -39,12 +39,12 @@ BEGIN
 	RETURN QUERY
 		SELECT
 			items.id, items.data, items.title, items.icon_image,
-			davids_buy.min_price,  davids_sell.max_price,
+			invice_buy.min_price,  invice_sell.max_price,
 			sandbox_buy.min_price, sandbox_sell.max_price,
 			amber_buy.min_price,   amber_sell.max_price
 		FROM items
-			LEFT JOIN (SELECT * FROM min_buy_prices(3))   AS davids_buy   ON davids_buy.item_id   = items.id AND davids_buy.data   = items.data
-			LEFT JOIN (SELECT * FROM max_sell_prices(3))  AS davids_sell  ON davids_sell.item_id  = items.id AND davids_sell.data  = items.data
+			LEFT JOIN (SELECT * FROM min_buy_prices(3))   AS invice_buy   ON invice_buy.item_id   = items.id AND invice_buy.data   = items.data
+			LEFT JOIN (SELECT * FROM max_sell_prices(3))  AS invice_sell  ON invice_sell.item_id  = items.id AND invice_sell.data  = items.data
 
 			LEFT JOIN (SELECT * FROM min_buy_prices(1))   AS sandbox_buy  ON sandbox_buy.item_id  = items.id AND sandbox_buy.data  = items.data
 			LEFT JOIN (SELECT * FROM max_sell_prices(1))  AS sandbox_sell ON sandbox_sell.item_id = items.id AND sandbox_sell.data = items.data

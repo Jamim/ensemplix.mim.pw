@@ -11,9 +11,11 @@ password = argv[1]
 sql_connection = psycopg2.connect("dbname='ensemplix' user='ensemplix' host='localhost' password='%s'" % (password,))
 cursor = sql_connection.cursor()
 
-insert_sql = "INSERT INTO servers VALUES (%(id)s, %(name)s, %(maximum)s, " \
-	"%(ip)s, %(port)s, %(server_type)s, %(border)s, %(world)s," \
-	"%(map)s, %(server_version)s, %(client_version)s);"
+insert_sql = (
+	"INSERT INTO servers VALUES (%(id)s, %(name)s, %(maximum)s, "
+	"%(ip)s, %(port)s, %(server_type)s, %(border)s, %(world)s, "
+	"%(map)s, %(world_created)s, %(server_version)s, %(client_version)s);"
+)
 server_name = argv[2] if len(argv) == 3 else None
 if server_name:
 	for server in servers:

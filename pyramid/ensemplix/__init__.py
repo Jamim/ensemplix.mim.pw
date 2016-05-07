@@ -158,11 +158,11 @@ class Item:
 		self.stats = stats
 
 	def set_prices(self,
-			davids_buy_price,  davids_sell_price,
+			invice_buy_price,  invice_sell_price,
 			sandbox_buy_price, sandbox_sell_price,
 			amber_buy_price,   amber_sell_price):
-		self.davids_buy_price    = davids_buy_price
-		self.davids_sell_price  = davids_sell_price
+		self.invice_buy_price    = invice_buy_price
+		self.invice_sell_price  = invice_sell_price
 		self.sandbox_buy_price  = sandbox_buy_price
 		self.sandbox_sell_price = sandbox_sell_price
 		self.amber_buy_price    = amber_buy_price
