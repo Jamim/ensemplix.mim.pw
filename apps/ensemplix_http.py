@@ -4,7 +4,7 @@ from time import time, sleep
 from socket import timeout
 import json
 
-CONNECTION_TIMEOUT = 15
+CONNECTION_TIMEOUT = 60
 
 def init_connection():
 	global api_connection
@@ -15,7 +15,7 @@ def close_connection():
 		api_connection.close()
 
 last_request_time = 0
-MIN_REQUEST_INTERVAL = 0.333
+MIN_REQUEST_INTERVAL = 1
 OSERROR_DELAY = 60
 
 def get_data(request):

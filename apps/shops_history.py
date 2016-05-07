@@ -24,7 +24,7 @@ else:
 	max_deal_id = int(argv[2])
 	cursor.execute("SELECT id FROM shops_history WHERE id > %s;", (max_deal_id,))
 	rows = cursor.fetchall()
-	existed_deals_ids = {id for id, in rows}
+	existed_deals_ids = {id for id in rows}
 
 servers = {}
 cursor.execute("SELECT world, id FROM servers;")
@@ -240,7 +240,7 @@ def update():
 	shops_attestation()
 
 
-minute = 60
+shops_check_interval = 180
 slowpoke_k = 0.9989945
 
 interrupted = False
@@ -248,7 +248,7 @@ while not interrupted:
 	try:
 		update()
 
-		delay = (minute - time() % minute) * slowpoke_k
+		delay = (shops_check_interval - time() % shops_check_interval) * slowpoke_k
 		if delay > 0:
 			log("Ожидание %.3f секунды", delay, style='0;32')
 			sleep(delay)
