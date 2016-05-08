@@ -210,6 +210,7 @@ def item_view(request):
 	item_id = params['item_id']
 	if not item_id.isdigit():
 		raise HTTPNotFound('Увы, предмет не найден :-/')
+	item_id = int(item_id)
 	data = int(params.get('data', 0))
 	server = params.get('server')
 	server_id = servers.get(server)
