@@ -125,10 +125,10 @@ SHOPS_HISTORY_LAST_BY_SERVER_SQL = 'SELECT * FROM shops_history_last(%(server_id
 def shops_history_last(request):
 	start_time = time()
 
-	server = 'server' in request.matchdict and request.matchdict['server'] or False
+	server = request.matchdict.get('server')
 	server_id = server and servers[server]
 
-	request = server and SHOPS_HISTORY_LAST_BY_SERVER_SQL or SHOPS_HISTORY_LAST_SQL
+	request = SHOPS_HISTORY_LAST_BY_SERVER_SQL if server else SHOPS_HISTORY_LAST_SQL
 	request_params = {'server_id': server_id}
 
 	cursor = sql_connection.cursor()
@@ -161,7 +161,7 @@ class Item:
 			invice_buy_price,  invice_sell_price,
 			sandbox_buy_price, sandbox_sell_price,
 			amber_buy_price,   amber_sell_price):
-		self.invice_buy_price    = invice_buy_price
+		self.invice_buy_price   = invice_buy_price
 		self.invice_sell_price  = invice_sell_price
 		self.sandbox_buy_price  = sandbox_buy_price
 		self.sandbox_sell_price = sandbox_sell_price
