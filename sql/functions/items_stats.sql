@@ -43,14 +43,14 @@ BEGIN
 			sandbox_buy.min_price, sandbox_sell.max_price,
 			amber_buy.min_price,   amber_sell.max_price
 		FROM items
-			LEFT JOIN (SELECT * FROM min_buy_prices(3))   AS invice_buy   ON invice_buy.item_id   = items.id AND invice_buy.data   = items.data
-			LEFT JOIN (SELECT * FROM max_sell_prices(3))  AS invice_sell  ON invice_sell.item_id  = items.id AND invice_sell.data  = items.data
+			LEFT JOIN (SELECT * FROM min_buy_prices(1))  AS sandbox_buy  ON sandbox_buy.item_id  = items.id AND sandbox_buy.data  = items.data
+			LEFT JOIN (SELECT * FROM max_sell_prices(1)) AS sandbox_sell ON sandbox_sell.item_id = items.id AND sandbox_sell.data = items.data
 
-			LEFT JOIN (SELECT * FROM min_buy_prices(1))   AS sandbox_buy  ON sandbox_buy.item_id  = items.id AND sandbox_buy.data  = items.data
-			LEFT JOIN (SELECT * FROM max_sell_prices(1))  AS sandbox_sell ON sandbox_sell.item_id = items.id AND sandbox_sell.data = items.data
+			LEFT JOIN (SELECT * FROM min_buy_prices(2))  AS invice_buy   ON invice_buy.item_id   = items.id AND invice_buy.data   = items.data
+			LEFT JOIN (SELECT * FROM max_sell_prices(2)) AS invice_sell  ON invice_sell.item_id  = items.id AND invice_sell.data  = items.data
 
-			LEFT JOIN (SELECT * FROM min_buy_prices(11))  AS amber_buy    ON amber_buy.item_id    = items.id AND amber_buy.data    = items.data
-			LEFT JOIN (SELECT * FROM max_sell_prices(11)) AS amber_sell   ON amber_sell.item_id   = items.id AND amber_sell.data   = items.data
+			LEFT JOIN (SELECT * FROM min_buy_prices(3))  AS amber_buy    ON amber_buy.item_id    = items.id AND amber_buy.data    = items.data
+			LEFT JOIN (SELECT * FROM max_sell_prices(3)) AS amber_sell   ON amber_sell.item_id   = items.id AND amber_sell.data   = items.data
 		ORDER BY items.id, items.data;
 END;
 
