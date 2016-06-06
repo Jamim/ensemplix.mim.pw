@@ -126,7 +126,11 @@ def shops_history_last(request):
 	start_time = time()
 
 	server = request.matchdict.get('server')
-	server_id = server and servers[server]
+	if server:
+		if server not in servers:
+			raise HTTPNotFound('Увы, сервер не найден :-/')
+		else:
+			server_id = servers[server]
 
 	request = SHOPS_HISTORY_LAST_BY_SERVER_SQL if server else SHOPS_HISTORY_LAST_SQL
 	request_params = {'server_id': server_id}
